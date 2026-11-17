@@ -1,21 +1,43 @@
-const HEADERS = {
-  work: new Set(["work", "name", "description", "item", "is", "ish", "iş", "tesvir", "təsvir", "ad", "itemdescription", "descriptionofwork", "workname", "itemname", "nameofwork", "наименование"]),
-  unit: new Set(["unit", "vahid", "ed", "olcu", "ölçü", "ед", "measure", "uom"]),
-  qty: new Set(["qty", "quantity", "miqdar", "miqdari", "miq", "кол", "count", "volume"]),
-  rate: new Set(["rate", "price", "qiymet", "qiymət", "qiymeti", "vahidqiymet", "vahidqiymeti", "unitprice", "unitrate", "цена"]),
-  amount: new Set(["amount", "sum", "mebleg", "məbləğ", "cemi", "cəmi", "сумма", "total", "value"]),
-  code: new Set(["code", "kod", "шифр", "desn", "norm", "itemcode"]),
-};
-
-const SKIP_WORK = new Set(["total", "subtotal", "grandtotal", "cemi", "yekun", "итого", "sum", "cəmi"]);
-
+// Folds Azerbaijani and Turkish letters to ASCII, keeps Cyrillic, drops punctuation and units.
+const FOLD = { ə: "e", ö: "o", ü: "u", ğ: "g", ş: "s", ç: "c", ı: "i", ё: "е" };
 const key = (cell) => String(cell ?? "")
   .replace(/İ/g, "i")
   .replace(/I/g, "i")
-  .replace(/ı/g, "i")
-  .trim()
   .toLowerCase()
-  .replace(/[^0-9a-zəöüğışç]/g, "");
+  .replace(/[əöüğşçıё]/g, (char) => FOLD[char])
+  .replace(/[^0-9a-zа-я]/g, "");
+
+const ALIASES = {
+  work: ["work", "works", "name", "description", "item", "itemdescription", "descriptionofwork", "workname", "itemname", "nameofwork",
+    "is", "ish", "isin", "isinadi", "islerin", "islerinadi", "tesvir", "ad", "adi", "наименование", "наименованиеработ", "работа", "работы", "описание"],
+  unit: ["unit", "units", "uom", "measure", "vahid", "olcu", "olcuvahidi", "ed", "едизм", "ед", "единица", "единицаизмерения", "измерения"],
+  qty: ["qty", "quantity", "count", "volume", "miqdar", "miqdari", "miq", "hecm", "hecmi", "кол", "количество", "колво", "объем"],
+  rate: ["rate", "price", "unitprice", "unitrate", "priceperunit", "qiymet", "qiymeti", "vahidqiymet", "vahidqiymeti", "vahidinqiymeti",
+    "цена", "ценазаед", "ценазаединицу", "стоимостьединицы"],
+  amount: ["amount", "sum", "total", "value", "cost", "mebleg", "meblegi", "umumimebleg", "cemi", "сумма", "стоимость", "всего"],
+  code: ["code", "kod", "kodu", "desn", "norm", "norma", "itemcode", "шифр", "код", "обоснование"],
+};
+const HEADERS = Object.fromEntries(Object.entries(ALIASES).map(([field, names]) => [field, new Set(names.map(key))]));
+
+// Exact alias first, otherwise the longest alias the header starts with ("Price, AZN" -> price).
+const fieldOf = (cell) => {
+  const k = key(cell);
+  if (!k) return null;
+  let best = null;
+  let length = 0;
+  Object.entries(HEADERS).forEach(([field, names]) => {
+    names.forEach((name) => {
+      if (k === name && name.length + 100 > length) { best = field; length = name.length + 100; }
+      else if (name.length >= 3 && k.startsWith(name) && name.length > length) { best = field; length = name.length; }
+    });
+  });
+  return best;
+};
+
+// Total, subtotal and tax rows are skipped when they carry no unit price.
+const TOTAL_PREFIXES = ["total", "subtotal", "grandtotal", "sum", "cemi", "yekun", "umumi", "edv", "vat", "tax",
+  "итого", "всего", "ндс", "налог"].map(key);
+const isTotalRow = (work) => TOTAL_PREFIXES.some((prefix) => key(work).startsWith(prefix));
 
 const asNumber = (value) => {
   const raw = String(value ?? "").trim();
@@ -51,14 +73,19 @@ const decodeText = (bytes) => {
   if (data.length >= 2 && data[0] === 0xfe && data[1] === 0xff) {
     return new TextDecoder("utf-16be").decode(data).replace(/^\uFEFF/, "");
   }
-  const encodings = ["utf-8", "windows-1254", "windows-1251"];
-  for (const encoding of encodings) {
-    try {
-      const text = new TextDecoder(encoding, { fatal: true }).decode(data);
-      if (text) return text.replace(/^\uFEFF/, "");
-    } catch {
-      // try the next encoding
-    }
+  try {
+    return new TextDecoder("utf-8", { fatal: true }).decode(data).replace(/^\uFEFF/, "");
+  } catch {
+    // not UTF-8: choose between the Cyrillic and Turkish code pages
+  }
+  const cyrillic = new TextDecoder("windows-1251").decode(data);
+  const letters = (cyrillic.match(/[A-Za-zА-Яа-яЁё]/g) || []).length;
+  const russian = (cyrillic.match(/[А-Яа-яЁё]/g) || []).length;
+  if (letters && russian / letters > 0.3) return cyrillic.replace(/^\uFEFF/, "");
+  try {
+    return new TextDecoder("windows-1254").decode(data).replace(/^\uFEFF/, "");
+  } catch {
+    // fall through
   }
   return new TextDecoder("utf-8", { fatal: false }).decode(data).replace(/^\uFEFF/, "");
 };
@@ -217,7 +244,8 @@ const sharedStrings = (xml) => {
   const items = [];
   const blocks = xml.match(/<si[\s\S]*?<\/si>/g) || [];
   blocks.forEach((block) => {
-    const parts = [...block.matchAll(/<t[^>]*>([\s\S]*?)<\/t>/g)].map((match) => unescapeXml(match[1]));
+    const visible = block.replace(/<rPh[\s\S]*?<\/rPh>/g, "");
+    const parts = [...visible.matchAll(/<t(?:\s[^>]*)?>([\s\S]*?)<\/t>/g)].map((match) => unescapeXml(match[1]));
     items.push(parts.join(""));
   });
   return items;
@@ -225,10 +253,10 @@ const sharedStrings = (xml) => {
 
 const sheetRows = (xml, shared) => {
   const rows = [];
-  const rowBlocks = xml.match(/<row[\s\S]*?<\/row>/g) || [];
+  const rowBlocks = xml.match(/<row\b[^>]*?(?:\/>|>[\s\S]*?<\/row>)/g) || [];
   rowBlocks.forEach((block) => {
     const values = [];
-    const cells = block.match(/<c[\s\S]*?(?:\/>|<\/c>)/g) || [];
+    const cells = block.match(/<c\b[^>]*?(?:\/>|>[\s\S]*?<\/c>)/g) || [];
     cells.forEach((cell) => {
       const ref = (cell.match(/r="([A-Z]+)\d+"/i) || [])[1] || "";
       let index = 0;
@@ -259,9 +287,11 @@ const xlsxFromFiles = (files) => {
   const sheets = Object.keys(files).filter((name) => /^xl\/worksheets\/sheet\d+\.xml$/i.test(name));
   if (!sheets.length) throw new Error("This Excel file has no sheet.");
   let best = [];
+  let bestLines = -1;
   sheets.forEach((name) => {
     const rows = sheetRows(decodeText(files[name]), shared);
-    if (rows.length > best.length) best = rows;
+    const lines = rowsFromTable(rows).length;
+    if (lines > bestLines) { best = rows; bestLines = lines; }
   });
   return best;
 };
@@ -370,10 +400,7 @@ const rowsFromTable = (table) => {
   let headerAt = -1;
   let best = 1;
   table.slice(0, 15).forEach((raw, index) => {
-    const score = raw.reduce((total, cell) => {
-      const fieldKey = key(cell);
-      return total + (Object.values(HEADERS).some((names) => names.has(fieldKey)) ? 1 : 0);
-    }, 0);
+    const score = new Set(raw.map(fieldOf).filter(Boolean)).size;
     if (score > best) {
       best = score;
       headerAt = index;
@@ -383,10 +410,8 @@ const rowsFromTable = (table) => {
   let start = 0;
   if (headerAt >= 0) {
     table[headerAt].forEach((cell, column) => {
-      const fieldKey = key(cell);
-      Object.entries(HEADERS).forEach(([field, names]) => {
-        if (names.has(fieldKey) && headerMap[field] == null) headerMap[field] = column;
-      });
+      const field = fieldOf(cell);
+      if (field && headerMap[field] == null) headerMap[field] = column;
     });
     start = headerAt + 1;
   }
@@ -416,11 +441,14 @@ const rowsFromTable = (table) => {
       rate = numbers[1] ?? null;
       amount = numbers[2] ?? null;
     }
-    if (!work || HEADERS.work.has(key(work)) || SKIP_WORK.has(key(work))) return;
+    if (!work || fieldOf(work) === "work") return;
+    if (/^[\d\s.,()№#-]+$/.test(work)) return;
+    if (isTotalRow(work) && rate == null) return;
     const bare = !code && !unit && rate == null && amount == null && qty == null;
     if (bare) return;
     if (qty == null) qty = 1;
     if (amount == null && rate != null) amount = rate * qty;
+    if (rate == null && amount != null && qty) rate = Math.round((amount / qty) * 100) / 100;
     rows.push({ name: work, unit, qty, rate, amount, code: code.trim() });
   });
   return rows;
@@ -436,6 +464,7 @@ const sniff = (bytes) => {
 export const readFile = async (filename, bytes) => {
   const data = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes || []);
   if (!data.length) throw new Error("The file is empty.");
+  if (data.length > 25 * 1024 * 1024) throw new Error("The file is larger than 25 MB. Split it or export only the estimate sheet.");
   const kind = filename.includes(".") ? filename.toLowerCase().split(".").pop() : "";
   const kindOf = sniff(data);
   if (kindOf === "ole" || kind === "xls") {
@@ -452,7 +481,16 @@ export const readFile = async (filename, bytes) => {
     else if (kind === "docx") table = await docxTable(data);
     else if (kind === "xlsx" || kind === "xlsm") table = await xlsxTable(data);
     else throw new Error("This Office file could not be opened.");
-  } else if (kindOf === "pdf" || kind === "pdf") table = parseCsv(await pdfText(data), true);
+  } else if (kindOf === "pdf" || kind === "pdf") {
+    try {
+      const { pdfTable } = await import("./pdfTable.js");
+      table = await pdfTable(data);
+    } catch (err) {
+      if (err instanceof Error && /password/i.test(err.message)) throw new Error("This PDF is password protected. Remove the password and upload it again.");
+      table = null;
+    }
+    if (!table || !rowsFromTable(table).length) table = parseCsv(await pdfText(data), true);
+  }
   else if (kind === "csv" || kind === "txt" || kind === "xls" || kind === "") {
     const text = decodeText(data);
     if (looksLikeHtml(text)) table = htmlTable(text);
