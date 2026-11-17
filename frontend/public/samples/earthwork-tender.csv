@@ -1,0 +1,50 @@
+code,work,unit,qty,rate,amount
+01-01-001-01,Excavation by excavator,m3,1200,8.40,10080.00
+01-01-001-01,Excavation for foundations,m3,860,9.10,7826.00
+01-01-001-01,Excavation for basement,m3,2400,8.90,21360.00
+01-01-001-01,Excavation for ramps,m3,320,10.40,3328.00
+01-01-001-01,Excavation for pits,m3,180,11.20,1766.00
+01-01-021-01,Trench excavation,m3,540,12.40,6696.00
+01-01-021-01,Service trench excavation,m3,310,11.80,3658.00
+01-01-021-01,Drainage trench,m3,260,13.60,3536.00
+01-01-021-01,Cable trench,m3,190,12.90,2451.00
+01-01-021-01,Trench beside retaining wall,m3,140,14.20,1988.00
+01-01-028-01,Manual excavation,m3,180,14.20,2556.00
+01-01-028-01,Manual excavation at pits,m3,95,15.60,1482.00
+01-01-028-01,Manual trim to formation,m3,70,16.40,1148.00
+01-01-028-01,Manual dig around services,m3,48,18.00,864.00
+01-01-033-01,Compaction of fill,m3,400,8.50,3400.00
+01-01-033-01,Compaction under slabs,m3,260,9.20,2392.00
+01-01-033-01,Compaction in layers 200 mm,m3,510,8.80,4488.00
+01-01-033-01,Compaction behind walls,m3,120,10.10,1212.00
+01-01-012-01,Disposal of excavated soil,m3,900,11.20,10080.00
+01-01-012-01,Disposal off site 10 km,m3,640,13.40,8576.00
+01-01-012-01,Disposal of unsuitable fill,m3,280,14.80,4144.00
+01-01-012-01,Cart away surplus,m3,280,12.00,3110.00
+01-01-041-01,Backfill of excavated soil,m3,350,9.10,3185.00
+01-01-041-01,Backfill to trenches,m3,220,8.70,1914.00
+01-01-041-01,Backfill to foundations,m3,410,9.40,3854.00
+01-01-055-01,Gravel bedding,m3,140,28.50,3990.00
+01-01-055-01,Gravel under pipes,m3,80,31.20,2496.00
+01-01-055-01,Hardcore filling,m3,160,27.40,4384.00
+01-01-055-01,Hardcore to paths,m3,90,26.80,2412.00
+,Site stripping by machine,m3,1500,4.80,7200.00
+,Leveling of formation,m2,2400,1.90,4560.00
+,Temporary earth retaining,m2,210,22.00,4620.00
+08-01-002-01,Brick masonry,m3,180,96.00,17280.00
+08-01-002-01,Brick masonry to plinth,m3,64,102.00,6528.00
+08-01-011-01,Block masonry,m3,240,72.50,17400.00
+08-01-011-01,Block masonry to shafts,m3,38,78.00,2964.00
+08-01-020-01,Partition masonry,m2,620,18.40,11408.00
+08-01-020-01,Partition to corridors,m2,280,17.60,4928.00
+08-02-003-01,Lintel installation,m,86,42.00,3612.00
+08-02-003-01,Lintel over openings,m,40,46.50,1860.00
+08-02-003-01,Precast lintel to windows,m,54,44.20,2386.80
+01-01-001-01,Bulk reduce level,m3,3200,7.60,24320.00
+01-01-033-01,Proof roll formation,m2,1800,1.40,2520.00
+01-01-012-01,Double handling of spoil,m3,150,6.80,1020.00
+,Dewatering of excavation,day,12,180.00,2160.00
+01-01-055-01,Blinding gravel to trenches,m3,36,30.50,1098.00
+08-01-011-01,Blockwork below ground,m3,52,74.00,3848.00
+08-01-002-01,Facing brick to boundary,m2,210,42.00,8820.00
+,Setting out and protection,lot,1,900.00,900.00

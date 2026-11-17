@@ -1,0 +1,51 @@
+code,work,unit,qty,rate,amount
+12-01-003-01,Roof membrane,m2,820,24.50,20090.00
+12-01-003-01,Roof membrane upstands,m2,140,28.00,3920.00
+12-01-003-01,Roof membrane to terraces,m2,260,27.40,7124.00
+12-01-009-01,Roof insulation,m2,820,16.20,13284.00
+12-01-009-01,Roof insulation perimeter,m2,160,18.40,2694.00
+12-01-009-01,Inverted roof insulation,m2,260,21.00,5460.00
+12-01-020-01,Gutters and downpipes,m,210,16.80,3528.00
+12-01-020-01,Downpipes internal,m,90,19.50,1755.00
+12-01-020-01,Rainwater outlets,pcs,24,42.00,1008.00
+12-02-001-01,Roof tiling,m2,640,29.00,18560.00
+12-02-001-01,Ridge and hip tiles,m,86,22.40,1926.40
+12-02-001-01,Valley tiles,m,40,26.00,1040.00
+16-01-001-01,Internal water pipe,m,460,19.40,8924.00
+16-01-001-01,Cold water riser,m,180,21.00,3780.00
+16-01-001-01,Hot water pipe,m,320,22.50,7200.00
+16-01-014-01,Drainage pipe,m,320,24.80,7936.00
+16-01-014-01,Drainage under slab,m,140,27.50,3850.00
+16-01-014-01,Soil stack,m,96,31.00,2976.00
+16-01-022-01,Sanitary fitting,pcs,36,86.00,3096.00
+16-01-022-01,Kitchen sanitary set,pcs,8,140.00,1120.00
+16-01-022-01,WC suite,pcs,24,110.00,2640.00
+16-01-022-01,Wash basin,pcs,24,68.00,1382.00
+16-02-004-01,Power cable,m,1100,8.10,8910.00
+16-02-004-01,Power cable to risers,m,420,9.40,3948.00
+16-02-004-01,Fire alarm cable,m,680,6.20,4216.00
+16-02-011-01,Lighting point,pcs,160,22.50,3600.00
+16-02-011-01,Emergency lighting point,pcs,24,34.00,816.00
+16-02-011-01,External lighting point,pcs,18,48.00,864.00
+16-02-020-01,Distribution board,pcs,6,240.00,1440.00
+16-02-020-01,Sub distribution board,pcs,4,190.00,760.00
+16-02-020-01,Main switchboard,pcs,1,1800.00,1800.00
+16-03-002-01,Radiator installation,pcs,48,120.00,5760.00
+16-03-002-01,Radiator large rooms,pcs,12,145.00,1740.00
+16-03-010-01,Heating pipe,m,680,18.60,12648.00
+16-03-010-01,Heating pipe risers,m,120,21.40,2568.00
+16-03-010-01,Heating manifolds,pcs,8,210.00,1680.00
+,Soil dig by machine,m3,300,7.20,2160.00
+,Testing and commissioning of systems,lot,1,2400.00,2400.00
+,Lightning protection,m,240,14.00,3360.00
+12-02-001-01,Roof access hatches,pcs,4,320.00,1280.00
+16-01-014-01,Gullies and traps,pcs,30,38.00,1140.00
+16-02-011-01,Socket outlet,pcs,220,16.40,3608.00
+16-02-004-01,Data cable,m,900,4.80,4320.00
+16-03-002-01,Towel rail,pcs,10,95.00,950.00
+12-01-020-01,Overflow pipes,m,40,12.00,480.00
+,Builders work in connection,lot,1,1600.00,1600.00
+16-01-001-01,Insulation to pipes,m,780,6.50,5070.00
+12-01-009-01,Vapour barrier,m2,820,4.20,3444.00
+16-02-020-01,Earthing bar,pcs,2,160.00,320.00
+,As-built drawings,lot,1,450.00,450.00

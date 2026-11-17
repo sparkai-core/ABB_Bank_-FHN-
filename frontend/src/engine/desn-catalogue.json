@@ -1,0 +1,767 @@
+[
+  {
+    "code": "DESN-91-02-01-2021-D1",
+    "title": "Torpaq işləri",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESN-91-02-02-2021-D1",
+    "title": "Dağ-mədən işləri",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESN-91-02-04-2021-D1",
+    "title": "Quyular (Kitab 1; kitab 2)",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESN-91-02-05-2021-D1",
+    "title": "Svaylama işləri. Endirilən quyular. Qruntların bərkidilməsi (Kitab 1; kitab 2)",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESN-91-02-06-2021-D1",
+    "title": "Monolit beton və dəmir-beton konstruksiyaları",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESN-91-02-07-2021-D1",
+    "title": "Yığma beton və dəmir-beton konstruksiyaları",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESN-91-02-08-2021-D1",
+    "title": "Kərpic və blokdan konstruksiyalar",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESN-91-02-08-ə",
+    "title": "2021-D1 Mişarlanmış əhəngdaşından və digər inşaat materiallarından iş növləri və konstruksiyalar",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESN-91-02-09-2021-D1",
+    "title": "Tikinti metal konstruksiyaları",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESN-91-02-10-2021-D1",
+    "title": "Ağac konstruksiyaları",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESN-91-02-11-2021-D1",
+    "title": "Döşəmələr",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESN-91-02-12-2021-D1",
+    "title": "Dam örtükləri",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESN-91-02-13-2021-D1",
+    "title": "Tikinti konstruksiyalarının və avadanlıqlarının korroziyadan mühafizəsi",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESN-91-02-14-2021-D1",
+    "title": "Kənd tikililərində konstruksiyalar",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESN-91-02-15-2021-D1",
+    "title": "Tamamlama işləri",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESN-91-02-16-2021-D1",
+    "title": "Daxili boru kəmərləri",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESN-91-02-17-2021-D1",
+    "title": "Su kəməri və kanalizasiya – daxili qurğular",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESN-91-02-18-2021-D1",
+    "title": "İstilik təchizatı-daxili qurğular",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESN-91-02-19-2021-D1",
+    "title": "Qaz təchizatı-daxili qurğular",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESN-91-02-20-2021-D1",
+    "title": "Hava ventilyasiyası və kondisiyalaşdırılması",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESN-91-02-21-2021-D1",
+    "title": "Müvəqqəti yığılan - sökülən bina və qurğular",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESN-91-02-22-2021-D1",
+    "title": "Su kəməri. Xaricixətlər  Kanalizasiya-xarici şəbəkələr",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESN-91-02-24-",
+    "title": "| İstilik təchizatı və qaz kəmərləri-xarici xətlər |  2021-D1 | (Kitab 1; kitab 2)",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESN-91-02-25-",
+    "title": "| Magistral və mədən boru kəmərləri |  2021-D1",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESN-91-02-25D",
+    "title": "| Sualtı boru kəmərlərinin çəkilməsi |  2021-D1 İstilik izolyasiya işləri |",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESN-91-02-26-",
+    "title": "2021-D1",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESN-91-02-27-",
+    "title": "| Avtomobil yolları |  2021-D1",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESN-91-02-28-",
+    "title": "| Dəmir yolları |  2021-D1",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESN-91-02-29-",
+    "title": "| Tunellər və metropolitenlər (Kitab 1; kitab 2) |  2021-D1",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESN-91-02-30-",
+    "title": "| Körpülər və borular |  2021-D1",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESN-91-02-31-",
+    "title": "| Aerodromlar |  2021-D1",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESN-91-02-32-",
+    "title": "| Tramvay yolları |  2021-D1",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESN-91-02-33-",
+    "title": "| Elektrik ötürücü xətləri |  (Kitab 1) 2021-D1",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESN-91-02-34-",
+    "title": "| |  Rabitə, radioyayım və | televiziya qurğuları 2021-D1 | (Kitab 2)",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESN-91-02-35-",
+    "title": "| Dağ-keçid işləri |  2021-D1",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESN-91-02-36-",
+    "title": "| |  Hidrotexniki qurğuların torpaq 2021-D1 | konstruksiyaları",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESN-91-02-37-",
+    "title": "| |  Hidrotexniki qurğuların beton və | dəmir-beton 2021-D1 | konstruksiyaları (Kitab 1; kitab 2)",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESN-91-02-38-",
+    "title": "| |  Hidrotexniki qurğuların | daş konstruksiyaları 2021-D1 | (Kitab 1; kitab 2)",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESN-91-02-39-",
+    "title": "| |  Hidrotexniki qurğuların metal konstruksiyaları 2021-D1 | (Kitab 1; kitab 2)",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESN-91-02-40-",
+    "title": "| Hidrotexniki qurğuların ağac konstruksiyaları |  2021-D1",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESN-91-02-41-",
+    "title": "| Hidrotexniki qurğularda hidroizolyasiya işləri |  2021-D1",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESN-91-02-42-",
+    "title": "| Sahilbərkitmə işləri |  2021-D1",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESN-91-02-43-",
+    "title": "| Slip və stapellərin gəmidaşıma yolları |  2021-D1 Sualtı (dalğıc) tikinti işləri",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESN-91-02-45-",
+    "title": "| Sənaye sobaları və boruları |  2021-D1",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESN-91-02-46-",
+    "title": "| |  Bina və qurğuların yenidən qurulması ilə 2021-D1 | bağlı işlər",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESN-91-02-47-",
+    "title": "| Yaşıllaşdırma. Qoruyucu meşəsalma |  2021-D1",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESN-91-02-48-",
+    "title": "| Neft və qaz quyuları |  2021-D1",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESN-91-02-49-",
+    "title": "| Dəniz şəraitində neft və |  qaz quyuları 2021-D1",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESN-91-02-50-",
+    "title": "| Kran gəmilərinin köməyi ilə | metal  2021-D1 | konstruksiyaların quraşdırılması",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESN-91-02-51-",
+    "title": "| Stasionar dəniz özüllərinin |  tikintisi 2021-D1",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESN-91-02-52-",
+    "title": "| |  Estakada və estakadayanı meydançaların 2021-D1 | tikintisi",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESN-91-02-53-",
+    "title": "| |  Dənizdə estakada və estakadayanı 2021-D1 | meydançalarda boru kəmərlərinin çəkilməsi",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESN-91-02-54-",
+    "title": "| |  Dənizdə və quruda metalkonstruksiyalarda 2021-D1 | korroziya əleyhinə mühafizə | işləri",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESN-91-02-55-",
+    "title": "| Dərin dəniz özüllərinin tikintisi |  2021-D1",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESN-91-02-56-",
+    "title": "| Sualtı texniki dalğıc işləri |  2021-D1",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNq-91-03-01-2021-D1",
+    "title": "Metal emalı avadanlıqları",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNq-91-03-02-2021-D1",
+    "title": "Qaldırıcı nəqliyyat avadanlıqları",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNq-91-03-04-2021-D1",
+    "title": "Doğrayıb-üyütmə, zənginləşdirmə və aqlomerasiya avadanlıqları Çəki avadanlıqları",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNq-91-03-05-2021-D1",
+    "title": "İstilik-güc avadanlıqları",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNq-9-03-07-2021-D1",
+    "title": "Kompressor qurğuları, nasos və ventilyatorlar",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNq-91-03-08-",
+    "title": "| Elektrik texniki qurğular (Kitab 1; kitab 2) | |  2021-D1",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNq-91-03-",
+    "title": "8D | Dənizdə | elektrik-quraşdırma işləri |  2021-D1",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNq-91-03-09-",
+    "title": "| Elektrik sobaları | |  2021-D1",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNq-91-03-10-",
+    "title": "| Rabitə | avadanlıqları |  2021-D1",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNq-91-03-11-",
+    "title": "| Cihazlar, | avtomatlaşdırma | və hesablama  2021-D1 | texnikası vasitələri",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNq-91-03-12-",
+    "title": "| Texnoloji boru kəmərləri | |  2021-D1",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNq-91-03-14-",
+    "title": "| Yayma istehsal avadanlıqları | |  2021-D1",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNq-91-03-15-",
+    "title": "| Qazların təmizlənməsi üçün avadanlıqlar | |  2021-D1",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNq-91-03-16-",
+    "title": "| Qara metallurgiya müəssisələrinin avadanlıqları | |  2021-D1",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNq-91-03-17-",
+    "title": "| Əlvan metallurgiya müəssisələrinin avadanlıqları | |  2021-D1",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNq-91-03-18-",
+    "title": "| Kimya | və neft emalı sənayesi | müəssisələrinin  2021-D1 | avadanlıqları",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNq-91-03-20-",
+    "title": "| Dəmir | yolu nəqliyyatında | siqnallaşdırma,  2021-D1 | mərkəzləşdirmə, | blokirovka | və kontakt şəbəkələrinin avadanlıqları",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNq-91-03-21-",
+    "title": "| Metropoliten və tunel avadanlıqları |  2021-D1",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNq-91-03-22-",
+    "title": "| Su-elektrik stansiyaları və hidrotexniki |  2021-D1 | qurğularınavadanlıqları",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNq-91-03-23-",
+    "title": "| Elektrotexnika sənayesi müəssisələrinin |  2021-D1 | avadanlıqları",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNq-91-03-24-",
+    "title": "| Tikinti materialları sənayesi müəssisələrinin |  2021-D1 | avadanlıqları",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNq-91-03-26-",
+    "title": "| Toxuculuq sənayesi müəssisələrinin |  2021-D1 | avadanlıqları",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNq-91-03-27-",
+    "title": "| Poliqrafiya sənayesi müəssisələrinin |  2021-D1 | avadanlıqları",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNq-91-03-28-",
+    "title": "| Yeyinti sənayesi müəssisələrinin |  2021-D1 | avadanlıqları",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNq-91-03-29-",
+    "title": "| Teatr-tamaşa müəssisələrininavadanlıqları |  2021-D1",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNq-91-03-30-2021-D1",
+    "title": "Taxıl anbarları və taxıl emalı müəssisələrinin avadanlıqları",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNq-91-03-31-",
+    "title": "| Kinomatoqrafiya müəssisələrinin | |  2021-D1 | avadanlıqları",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNq-91-03-32-",
+    "title": "| Elektron sənayesi və | rabitə vasitələri sənayesi |  2021-D1 | müəssisələrinin avadanlıqları",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNq-91-03-33-",
+    "title": "| Yüngül sənaye müəssisələrinin avadanlıqları | |  2021-D1",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNq-91-03-34-",
+    "title": "| Tibb sənayesi | müəssisələrinin və səhiyyə |  2021-D1 | idarələrinin avadanlıqları",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNq-91-03-35-",
+    "title": "| Kənd təsərrüfatı istehsalat avadanlıqları | |  2021-D1",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNq-91-03-36-",
+    "title": "| Məişət xidməti | və kommunal təsərrüfatı |  2021-D1 | müəssisələrinin avadanlıqları",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNq-91-03-37-",
+    "title": "| Ümumi təyinatlı avadanlıqlar | |  2021-D1",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNq-91-03-38-",
+    "title": "| İstehsalat baza | şəraitində texnoloji metal |  2021-D1 | konstruksiyaların hazırlanması",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNq-91-03-39-",
+    "title": "| Quraşdırma qaynaq | birləşmələrinə nəzarət |  2021-D1",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNq-91-03-40-",
+    "title": "| Material resurslarının və | avadanlığın Dövlət |  2021-D1 | Element Smeta | normalarında nəzərdə tutulduğundan əlavə yerdəyişdirilməsi",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNqt-91-06-01-2021-D1",
+    "title": "Liftlərin avadanlığının modernləşdirilməsi və əsaslı təmiri Boru kəmərlərinin armaturlarının yoxlanılması",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNqt",
+    "title": "91-06-02-2021-D1",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNb-91-04-01-2021-D1",
+    "title": "Elektrotexniki qurğular",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNb-91-04-02-",
+    "title": "| Avtomatlaşdırılmış idarəetmə | sistemləri |  2021-D1",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNb-91-04-03-",
+    "title": "| Havanın ventilyasiya | və kondisiyalaşdırılma |  2021-D1 | sistemləri",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNb-91-04-04-2021-D1",
+    "title": "Qaldırıcı-nəqliyyat avadanlıqları",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNb-91-04-05-2021-D1",
+    "title": "Metal emalı avadanlıqları",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNb-91-04-06-2021-D1",
+    "title": "Soyuducu və kompressor qurğuları",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNb-91-04-07-2021-D1",
+    "title": "İstilik enerji avadanlıqları",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNb-91-04-08-2021-D1",
+    "title": "Ağac emalı avadanlıqları",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNb-91-04-09-2021-D1",
+    "title": "Su təchizatı və kanalizasiya qurğuları",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNb-91-04-16-2021",
+    "title": "Dəmiryolu nəqliyyatında avtomatika və telemexanika qurğuları",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNt-91-04-51-2021-D1",
+    "title": "Torpaq işləri",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNt-91-04-52-2021-D1",
+    "title": "Özüllər",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNt-91-04-53-2021-D1",
+    "title": "Divarlar",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNt-91-04-54-2021-D1",
+    "title": "Örtüklər",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNt-91-04-55-2021-D1",
+    "title": "Arakəsmələr",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNt-91-04-56-2021-D1",
+    "title": "Oyuqlar",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNt-91-04-57-2021-D1",
+    "title": "Döşəmələr",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNt-91-04-58-2021-D1",
+    "title": "Damlar, damörtükləri",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNt-91-04-59-2021-D1",
+    "title": "Pilləkənlər, artırmalar",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNt-91-04-60-2021-D1",
+    "title": "Sobaişləri",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNt-91-04-61-2021-D1",
+    "title": "Suvaqişləri",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNt-91-04-62-2021-D1",
+    "title": "Rəngsazlıqişləri",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNt-91-04-63-2021-D1",
+    "title": "Şüşə, divar kağızı və üzləmə işləri",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNt-91-04-64-2021-D1",
+    "title": "Yapma işləri",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNt-91-04-65-2021-D1",
+    "title": "Daxilisanitar-texnikiişləri",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNt-91-04-66-2021-D1",
+    "title": "Elektrik-quraşdırma işləri",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNt-91-04-67-2021-D1",
+    "title": "Abadlaşdırma",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNt-91-04-68-2021-D1",
+    "title": "Digər təmir-tikinti işləri",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNt-91-04-70-2021-D1",
+    "title": "Dəniz estakadalarının, özüllərinin və sualtı boru kəmərlərinin kompleks təmiri 4.1.6. Mədəni irs obyektlərində (daşınmaz tarix və mədəniyyət abidələrində) təmir-bərpa işləri üzrə Dövlət Element Smeta Normaları (DESNtb)",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNtb-91-04-01-2022",
+    "title": "Mədəni irs obyektləri zonalarında memarlıq arxeoloji torpaq işləri",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNtb-91-04-02-2022",
+    "title": "But daşından olan bünövrələrin və konstruksiyaların bərpası və yenidən qurulması",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNtb-91-04-03-",
+    "title": "| Kərpic tikintilərinin | bərpası və yenidən |  2022 | qurulması",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNtb-91-04-04-",
+    "title": "| Təbii daşdan bəzək strukturlarının bərpası və | |  2022 | yenidən qurulması",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNtb-91-04-05-",
+    "title": "| Taxta konstruksiyalar və | detalların bərpası və |  2022 | yenidən qurulması",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNtb-91-04-06-",
+    "title": "| Dam örtüyünün bərpası və | yenidən qurulması |  2022",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNtb-91-04-07-",
+    "title": "| Metal konstruksiyaların | və bəzək |  2022 | elementlərinin bərpası və | yenidənqurulması",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNtb-91-04-08-",
+    "title": "| Suvağın bərpası və yenidənqurulması | |  2022",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNtb-91-04-09-",
+    "title": "| Süni mərmərdən olan üzlüklərin bərpası və | |  2022 | yenidən qurulması",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNtb-91-04-10-",
+    "title": "| Fasadların və interyerin | qatının bərpası rəng |  2022 | və yenidənqurulması",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNtb-91-04-11-",
+    "title": "| Keramik dekor elementlərinin | bərpası və |  2022 | yenidənqurulması",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNtb-91-04-12-2022",
+    "title": "Memarlıq yapma dekor elementlərinin bərpası və yenidənqurulması",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNtb-91-04-13-",
+    "title": "| Ağac üzərində | oymanın | bərpası və  2022 | yenidənqurulması",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNtb-91-04-14-",
+    "title": "| Mebellərin | bərpası |  2022",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNtb-91-04-15-",
+    "title": "| Parket | döşəmənin bərpası | və 2022 | yenidənqurulması",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNtb-91-04-16-",
+    "title": "| Əlvan metallardan bədii məmulatların yenidən 2022 | qurulması",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNtb-91-04-17-",
+    "title": "| Metal konstruksiyalarda döymə | və | naxışlama 2022 | işləri",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNtb-91-04-18-",
+    "title": "Naxışlanmış səthlərin bərpası | |  2022",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNtb-91-04-19-",
+    "title": "| Yumşaq | mebellərin bərpası-tamamlama | və 2022 | üzləmə işləri",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNtb-91-04-20-",
+    "title": "| Qızıl səthlərin bərpası və | yenidənqurulması 2022",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNtb-91-04-21-",
+    "title": "| Müxtəlif işlər 2022",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNtb-91-04-22-",
+    "title": "| Pəncərə | və qapı cihazlarının | bərpası və 2022 | yenidənqurulması",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNtb-91-04-23-",
+    "title": "| Parça və | qobolenlərin bərpası və |  2022 | yenidənqurulması",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNtb-91-04-24-",
+    "title": "| Bədii toxunmaların bərpası | |  2022",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNtb-91-04-25-",
+    "title": "| Qalvanik üsulla metal məmulatlarının 2022 | bədii işlənməsi",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNtb-91-04-26-",
+    "title": "| Əlvan metal və | büllur asmalardan dekorativ |  2022 | tətbiqi incəsənət obyektlərinin bərpası | | və yenidənqurulması",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNtb-91-04-27-",
+    "title": "| Dekorativ tətbiqi sənət əsərlərinin bərpası | | və 2022 | yenidənqurulması",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNtb-91-04-28-",
+    "title": "| Monumental | və dəzgah boyakarlığının 2022 | bərpası",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNtb-91-04-29-",
+    "title": "| Memarlıq abidələrində | tam və qismən |  2022 | itirilmiş dekorativ tətbiqi monumental boyakarlığın bərpası",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNtb-91-04-30-",
+    "title": "| Mozaikanın bərpası | | və yenidənqurulması |  2022",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  },
+  {
+    "code": "DESNtb-91-04-31-",
+    "title": "| Dekorativ tətbiqi incəsənət əşyaları kəhrəba | | |  2022 | dəstinin bərpası | vəyenidən | qurulması 4.1.7. Metodiki və digər normativ sənədlər - Tikinti, quraşdırma, xüsusi tikinti və buraxılış sazlama işləri üçün Dövlət Element Smeta Normalarının hazırlanması qaydaları haqqında metodik göstərişlər - Tikintidə tətbiq edilən materialların, məmulatların, konstruksiyaların, mebel inventar və avadanlıqların cari smeta qiymətləri toplularının, bina və qurğuların tikintisi və əsaslı təmiri üçün yükdaşımaların cari smeta qiymətləri toplularının işlənilməsi üzrə metodik göstərişlər - Tikintidə smeta gəlirinin səviyyəsinin təyini üzrə metodik göstərişlər - Tikintidə üstəlik xərclərin təyini üzrə metodik göstərişlər - Tikintidə material sərfi normalarının hazırlanması qaydaları - Tikintidə istifadə olunan resursların cari qiymətlərinin monitorinqinin aparılması, tikinti maşınlarının və avtonəqliyyat vasitələrinin istismarının cari smeta qiymətləri toplularının tərtibi üzrə metodik göstərişlər",
+    "approval": "FHN, 7 iyun 2022, № 20/01-002"
+  }
+]

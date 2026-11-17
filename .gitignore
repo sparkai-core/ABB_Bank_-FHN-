@@ -1,0 +1,8 @@
+# Local sample. Do not commit a real contractor estimate here.
+.venv/
+__pycache__/
+.pytest_cache/
+node_modules/
+dist/
+.cursor/
+.tmp-unseen/

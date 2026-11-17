@@ -1,0 +1,51 @@
+code,work,unit,qty,rate,amount
+06-01-001-01,Blinding concrete,m3,80,155.00,12400.00
+06-01-001-01,Blinding under walls,m3,46,148.00,6808.00
+06-01-001-01,Blinding to pits,m3,22,162.00,3564.00
+06-01-001-01,Blinding to ground beams,m3,18,158.00,2844.00
+06-01-015-01,Foundation concrete,m3,120,210.00,24950.00
+06-01-015-01,Foundation strip concrete,m3,95,198.00,18810.00
+06-01-015-01,Pad foundation concrete,m3,70,215.00,15050.00
+06-01-015-01,Raft concrete,m3,160,188.00,30080.00
+06-01-022-01,Column concrete,m3,64,240.00,15360.00
+06-01-022-01,Column concrete upper floors,m3,48,255.00,12240.00
+06-01-022-01,Column concrete core,m3,30,268.00,8040.00
+06-01-030-01,Slab concrete,m3,210,190.00,39900.00
+06-01-030-01,Slab concrete roof,m3,86,205.00,17630.00
+06-01-030-01,Slab concrete basement,m3,140,198.00,27720.00
+06-01-041-01,Reinforcement fixing,t,38,780.00,29640.00
+06-01-041-01,Reinforcement in walls,t,12,740.00,8880.00
+06-01-041-01,Reinforcement in slabs,t,22,760.00,16720.00
+06-01-041-01,Reinforcement in beams,t,9,810.00,7290.00
+06-02-001-01,Formwork installation,m2,460,28.00,12880.00
+06-02-001-01,Formwork to columns,m2,320,32.50,10400.00
+06-02-001-01,Formwork to slabs,m2,890,24.80,22072.00
+06-02-001-01,Formwork to walls,m2,540,31.00,16490.00
+06-02-001-01,Formwork to beams,m2,260,34.20,8892.00
+11-01-001-01,Plastering,m2,1400,9.80,13720.00
+11-01-001-01,Plaster to walls,m2,980,10.40,10192.00
+11-01-001-01,Plaster to shafts,m2,220,12.60,2772.00
+11-01-018-01,Interior paint,m2,1600,6.40,10240.00
+11-01-018-01,Paint to ceilings,m2,740,7.10,5254.00
+11-01-018-01,Paint to corridors,m2,510,6.90,3519.00
+11-01-030-01,Ceiling plaster,m2,740,11.20,8288.00
+11-01-044-01,External render,m2,1100,14.60,16060.00
+11-01-044-01,External render to parapet,m2,180,16.80,3024.00
+11-02-004-01,Ceramic floor tile,m2,640,32.00,20480.00
+11-02-004-01,Wall tile wet areas,m2,280,36.50,10220.00
+11-02-004-01,Floor tile to stairs,m2,90,41.00,3690.00
+11-03-002-01,Suspended ceiling,m2,520,29.00,15080.00
+11-03-002-01,Suspended ceiling to offices,m2,340,31.50,10710.00
+11-04-001-01,Door installation,pcs,46,140.00,6440.00
+11-04-001-01,Fire door installation,pcs,12,260.00,3120.00
+11-04-008-01,Window installation,m2,180,96.00,17280.00
+11-04-008-01,Curtain wall,m2,90,180.00,16200.00
+,Concrete stair flight,m3,18,310.00,5580.00
+,Expansion joint,m,240,8.50,2040.00
+,Waterproofing to basement,m2,860,18.40,15824.00
+06-01-030-01,Topping to slabs,m3,24,175.00,4200.00
+11-01-018-01,Exterior paint,m2,1100,8.20,9020.00
+11-04-001-01,Door frame only,pcs,20,48.00,960.00
+06-02-001-01,Stop ends and kickers,m,160,6.40,1024.00
+,Making good after trades,m2,400,3.20,1280.00
+11-02-004-01,Skirting tile,m,520,9.50,4940.00

@@ -1,0 +1,2 @@
+# The checker uses the Python standard library.
+# Tests: py -3 -m pip install pytest
