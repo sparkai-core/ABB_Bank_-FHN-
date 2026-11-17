@@ -452,12 +452,12 @@ export const NORMS = [
   },
 ];
 
-export const referenceRate = (norm, index = INDEX_FACTOR) => unitRate(
+export const referenceRate = (norm, index = INDEX_FACTOR, workType = "construction") => unitRate(
   norm.labor,
   norm.machinist,
   norm.machine,
   norm.material,
-  "construction",
+  workType,
   index,
 );
 
@@ -504,7 +504,8 @@ export const scopeMissing = (lines) => {
     .filter((line) => line.coded || line.match === "confirmed")
     .map((line) => line.suggested_code)
     .filter(Boolean);
-  const present = new Set(codes);
+  // A line still waiting for confirmation is not proof the work is missing.
+  const present = new Set(lines.map((line) => line.suggested_code).filter(Boolean));
   return SCOPE_RULES
     .filter((rule) => rule.test(codes) && !present.has(rule.need))
     .map((rule) => normByCode(rule.need))

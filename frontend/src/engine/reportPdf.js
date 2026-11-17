@@ -128,7 +128,7 @@ export const buildReportPdf = async (review, lang, fontBytes) => {
     [text.contractor, money(review.score.contractor_total)],
     [text.reference, money(review.score.reference_total)],
     [text.difference, signed(review.score.deviation_pct) || ""],
-    ["Risk", text.light[review.score.light] || ""],
+    [text.codeLabel, text.light[review.score.light] || ""],
   ];
   ensure(36);
   facts.forEach((fact, index) => {
@@ -142,12 +142,12 @@ export const buildReportPdf = async (review, lang, fontBytes) => {
   const decidedAt = review.decision?.at
     ? new Date(review.decision.at).toLocaleString(lang === "az" ? "az-AZ" : "en-GB", { dateStyle: "medium", timeStyle: "short" })
     : "";
-  drawLines(wrapText(font, show(`${text.saved}: ${decision}${review.decision?.by ? ` · ${review.decision.by}` : ""}${decidedAt ? ` · ${decidedAt}` : ""}${note ? ` — ${note}` : ""}`), 9, contentWidth), 9, muted, 2);
+  drawLines(wrapText(font, show(`${text.saved}: ${decision}${review.decision?.by ? `, ${review.decision.by}` : ""}${decidedAt ? `, ${decidedAt}` : ""}${note ? `. ${note}` : ""}`), 9, contentWidth), 9, muted, 2);
   reportLines.filter((item) => item.confirmed_by).forEach((item) => {
     const when = item.confirmed_at
       ? new Date(item.confirmed_at).toLocaleString(lang === "az" ? "az-AZ" : "en-GB", { dateStyle: "medium", timeStyle: "short" })
       : "";
-    drawLines(wrapText(font, show(`${text.confirm}: ${item.code} · ${item.confirmed_by}${when ? ` · ${when}` : ""}`), 8, contentWidth), 8, muted, 1);
+    drawLines(wrapText(font, show(`${text.confirm}: ${item.code}, ${item.confirmed_by}${when ? `, ${when}` : ""}`), 8, contentWidth), 8, muted, 1);
   });
   y -= 12;
 
@@ -201,7 +201,7 @@ export const buildReportPdf = async (review, lang, fontBytes) => {
 
   const pages = pdf.getPages();
   pages.forEach((item, index) => {
-    item.drawText(show(`${text.independent}  ·  ${index + 1} / ${pages.length}`), {
+    item.drawText(show(`${text.independent}   ${index + 1} / ${pages.length}`), {
       x: MARGIN,
       y: 22,
       size: 8,
@@ -222,7 +222,8 @@ export const downloadReportPdf = async (review, lang) => {
   const link = document.createElement("a");
   const title = (lang === "az" ? review.title_az : review.title_en) || "report";
   link.href = url;
-  link.download = `${title.replace(/[\\/:*?"<>|]+/g, " ").trim()}.pdf`;
+  const base = title.replace(/\.(csv|txt|xlsx?|xlsm|pdf|docx?)$/i, "").replace(/[\\/:*?"<>|]+/g, " ").trim();
+  link.download = `${base} report.pdf`;
   link.click();
   URL.revokeObjectURL(url);
 };

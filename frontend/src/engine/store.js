@@ -16,21 +16,31 @@ import { desnFor } from "./desn.js";
 
 const STORAGE_KEY = "smeta.projects.v1";
 
-const tokens = (text) => new Set(String(text).toLowerCase().match(/[0-9a-zəöüğışç]+/g) || []);
+const STOP = new Set(["of", "and", "the", "for", "with", "by", "to", "in", "on", "a", "və", "ilə", "üçün", "the", "work", "works", "iş", "işləri", "işi"]);
+const stem = (word) => (word.length > 5 ? word.slice(0, 5) : word);
+const tokens = (text) => new Set(
+  (String(text).toLowerCase().match(/[0-9a-zəöüğışçа-я]+/g) || [])
+    .filter((word) => word.length > 1 && !STOP.has(word))
+    .map(stem),
+);
 
+// Rule based description matching. Confidence is the cosine overlap of word stems (0 to 1).
+// A person confirms every match below full confidence before it counts in the score.
 const suggest = (name) => {
   const words = tokens(name);
   const book = listNorms();
   let best = book[0];
-  let bestScore = -1;
+  let bestScore = 0;
   book.forEach((norm) => {
-    const score = [...words].filter((word) => tokens(`${norm.name_en} ${norm.name_az} ${norm.code}`).has(word)).length;
+    const target = tokens(`${norm.name_en} ${norm.name_az}`);
+    const shared = [...words].filter((word) => target.has(word)).length;
+    const score = words.size && target.size ? shared / Math.sqrt(words.size * target.size) : 0;
     if (score > bestScore) {
       best = norm;
       bestScore = score;
     }
   });
-  return { norm: best, score: bestScore };
+  return { norm: best, score: Math.round(bestScore * 100) / 100 };
 };
 
 const sampleProject = () => ({
@@ -91,15 +101,14 @@ const current = () => state.projects[state.active];
 
 const flagRow = (row, referenceAmount, computedAmount) => {
   if (row.gap || row.contractor_rate == null) return { flag: "gap", deviation: null };
-  const stated = Number(row.contractor_amount);
   if (referenceAmount === 0) return { flag: "close", deviation: null };
-  if (Math.abs(stated - Number(computedAmount)) > 0.05) {
-    return {
-      flag: "arithmetic",
-      deviation: percent(((stated - referenceAmount) / referenceAmount) * 100),
-    };
+  const computed = Number(computedAmount);
+  const deviation = percent(((computed - referenceAmount) / referenceAmount) * 100);
+  if (row.contractor_amount != null && row.contractor_amount !== "") {
+    const stated = Number(row.contractor_amount);
+    const tolerance = Math.max(0.05, Math.abs(computed) * 0.0005);
+    if (Math.abs(stated - computed) > tolerance) return { flag: "arithmetic", deviation };
   }
-  const deviation = percent(((stated - referenceAmount) / referenceAmount) * 100);
   const prefs = readPrefs();
   if (deviation <= prefs.under) return { flag: "under", deviation };
   if (deviation >= prefs.over) return { flag: "over", deviation };
@@ -139,7 +148,9 @@ const present = (row) => {
     unit: row.unit || norm.unit,
     qty: String(qty),
     contractor_rate: row.contractor_rate == null ? null : money(row.contractor_rate).toFixed(2),
-    contractor_amount: row.contractor_amount == null ? null : money(row.contractor_amount).toFixed(2),
+    contractor_amount: row.contractor_amount != null && row.contractor_amount !== ""
+      ? money(row.contractor_amount).toFixed(2)
+      : (computedAmount == null ? null : computedAmount.toFixed(2)),
     computed_amount: computedAmount == null ? null : computedAmount.toFixed(2),
     reference_rate: rate.toFixed(2),
     reference_amount: referenceAmount.toFixed(2),
@@ -177,6 +188,12 @@ const listProjects = () => state.order.map((projectId) => {
     kind: project.kind,
     lines: presented.length,
     waiting: presented.filter((line) => line.match === "needs_review").length,
+    issues: {
+      under: presented.filter((line) => line.included && line.flag === "under").length,
+      over: presented.filter((line) => line.included && line.flag === "over").length,
+      gap: presented.filter((line) => line.included && line.flag === "gap").length,
+      arithmetic: presented.filter((line) => line.included && line.flag === "arithmetic").length,
+    },
     light: scored.light,
     deviation_pct: scored.deviation_pct,
     decision: project.decision?.choice || "",
@@ -282,12 +299,12 @@ export const confirmLine = (lineId, code, projectId = state.active, actor = "") 
   const project = state.projects[projectId];
   if (!project || !normByCode(code)) return null;
   project.lines = project.lines.map((row) => {
-    if (row.id !== lineId || row.gap) return row;
+    if (row.id !== lineId) return row;
     return {
       ...row,
       suggested_code: code,
       match: "confirmed",
-      included: true,
+      included: row.gap ? row.included !== false : true,
       confidence: "1",
       confirmed_by: actor,
       confirmed_at: Date.now(),
@@ -390,7 +407,7 @@ export const uploadProject = async ({ filename, content, bytes }) => {
         match: clash ? "needs_review" : "confirmed",
         confidence: clash ? "0.4" : "1",
         suggested_code: exact.code,
-        included: item.rate != null && !clash,
+        included: !clash,
         gap: item.rate == null,
         coded,
         source_name: item.name,
@@ -404,9 +421,9 @@ export const uploadProject = async ({ filename, content, bytes }) => {
       contractor_rate: item.rate == null ? null : String(item.rate),
       contractor_amount: item.amount == null ? null : String(item.amount),
       match: "needs_review",
-      confidence: score ? "0.55" : "0.2",
+      confidence: String(score),
       suggested_code: norm.code,
-      included: false,
+      included: item.rate == null,
       gap: item.rate == null,
       coded,
       source_name: item.name,
@@ -422,7 +439,7 @@ export const uploadProject = async ({ filename, content, bytes }) => {
     source: "upload",
     kind: kind || "file",
     lines: built,
-    decision: existingId ? state.projects[existingId].decision : null,
+    decision: null,
     createdAt: existingId ? state.projects[existingId].createdAt : Date.now(),
   };
   state = {
@@ -464,7 +481,7 @@ export const reportText = (projectId = state.active) => {
     `Contractor total: ${snap.score.contractor_total}`,
     `Reference total: ${snap.score.reference_total}`,
     `Difference: ${snap.score.deviation_pct || ""}`,
-    `Risk: ${snap.score.light}`,
+    `Code: ${{ red: "S1", amber: "S2", green: "S3" }[snap.score.light] || ""}`,
     snap.score.sentence_en,
     snap.score.sentence_az,
     `Decision: ${decision}`,

@@ -1,10 +1,21 @@
 import { Fragment, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import {
   ArrowRight,
+  BookOpen,
   Check,
+  CircleHelp,
+  Cpu,
   Database,
   Download,
+  FileText,
   LayoutDashboard,
+  Lock,
+  MessageSquare,
+  Ban,
+  ScanText,
+  Upload,
+  UserCheck,
   X,
   FileSpreadsheet,
   FolderKanban,
@@ -23,7 +34,7 @@ import { SOURCES, WAGE_RATES } from "./engine/sources.js";
 import catalogue from "./engine/desn-catalogue.json";
 import arxkomSmeta from "./engine/arxkom-smeta.json";
 import { rateParts } from "./engine/pricing.js";
-import { DEFAULT_PREFS, OVERS, SEVERES, THEMES, UNDERS, applyTheme, readPrefs, savePrefs } from "./engine/prefs.js";
+import { BASE_YEARS, DEFAULT_PREFS, OVERS, SEVERES, THEMES, UNDERS, YEARS, applyTheme, readPrefs, savePrefs } from "./engine/prefs.js";
 import {
   clearUploads,
   compareBoard,
@@ -41,6 +52,54 @@ import {
   snapshot,
   uploadProject,
 } from "./engine/store.js";
+
+const toast = (message) => {
+  if (typeof window !== "undefined") window.dispatchEvent(new CustomEvent("smeta-toast", { detail: message }));
+};
+
+const Toaster = () => {
+  const [items, setItems] = useState([]);
+  useEffect(() => {
+    const onToast = (event) => {
+      const id = Date.now() + Math.random();
+      setItems((list) => [...list.slice(-2), { id, message: event.detail }]);
+      window.setTimeout(() => setItems((list) => list.filter((item) => item.id !== id)), 2600);
+    };
+    window.addEventListener("smeta-toast", onToast);
+    return () => window.removeEventListener("smeta-toast", onToast);
+  }, []);
+  return (
+    <div className="toasts" role="status" aria-live="polite">
+      {items.map((item) => (
+        <div className="toast" key={item.id}><Check size={14} strokeWidth={3} /> {item.message}</div>
+      ))}
+    </div>
+  );
+};
+
+const pct = (value) => (Number(value) < 0 ? `−${Math.abs(Number(value))}%` : `${value}%`);
+
+const Amount = ({ value }) => (
+  <span className="amt">{money(value)}<small>AZN</small></span>
+);
+
+const TrafficLight = ({ light }) => (
+  <div className={`signal ${light}`} aria-hidden="true">
+    <i className="r" /><i className="a" /><i className="g" />
+  </div>
+);
+
+const greeting = (lang) => {
+  const hour = new Date().getHours();
+  if (lang === "az") return hour < 12 ? "Sabahınız xeyir" : hour < 18 ? "Günortanız xeyir" : "Axşamınız xeyir";
+  return hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
+};
+
+const codeClass = (light) => (light === "red" ? "s1" : light === "amber" ? "s2" : "s3");
+
+const CodeMark = ({ light, text }) => (
+  <span className={`code-mark ${codeClass(light)}`}>{text.light[light]}</span>
+);
 
 const Brand = ({ onDark = false, hint }) => (
   <div className={`brand${onDark ? " on-dark" : ""}`}>
@@ -64,7 +123,7 @@ const Loader = ({ lang }) => (
 const LANG_KEY = "smeta.lang";
 const readLang = () => (localStorage.getItem(LANG_KEY) === "az" ? "az" : "en");
 
-const Auth = ({ mode, lang, onMode, onEnter }) => {
+const Auth = ({ mode, lang, onMode, onEnter, onDone }) => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -77,10 +136,10 @@ const Auth = ({ mode, lang, onMode, onEnter }) => {
 
   const finish = async (session) => {
     setAccepted(true);
-    const ready = snapshot();
+    onEnter(session);
     const motion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (!motion) await new Promise((resolve) => { window.setTimeout(resolve, 2200); });
-    onEnter(session, ready);
+    onDone();
   };
 
   const submit = async (event) => {
@@ -88,7 +147,7 @@ const Auth = ({ mode, lang, onMode, onEnter }) => {
     setError("");
     setBusy(true);
     try {
-      const session = creating ? signup({ name, email, password }) : login({ email });
+      const session = creating ? await signup({ name, email, password }) : await login({ email, password });
       await finish(session);
     } catch (err) {
       const code = err instanceof Error ? err.message : "";
@@ -103,6 +162,16 @@ const Auth = ({ mode, lang, onMode, onEnter }) => {
       <div className="login-shell">
         <section className={`login-art${accepted ? " is-open" : ""}`}>
           <Brand onDark hint={copy[lang].product} />
+          {accepted ? null : (
+            <div className="login-pitch">
+              <h1>{copy[lang].loginHead}</h1>
+              <ul>
+                {copy[lang].principles.map((item) => (
+                  <li key={item}><span><Check size={12} strokeWidth={3} /></span>{item}</li>
+                ))}
+              </ul>
+            </div>
+          )}
           <Ledger3D captions={copy[lang].scene} pose={accepted ? "open" : "idle"} success={text.opened} />
           {accepted ? null : <p className="login-art-foot">{copy[lang].independent}</p>}
         </section>
@@ -110,7 +179,7 @@ const Auth = ({ mode, lang, onMode, onEnter }) => {
           <div key={mode} className="auth-panel">
             <div>
               <h2>{creating ? text.create : text.signIn}</h2>
-              <p className="lede">{creating ? text.createLead : text.signInLead}</p>
+              {creating ? <p className="lede">{text.createLead}</p> : null}
             </div>
             <form className="form" onSubmit={submit}>
               {error ? <div className="banner" role="alert">{error}</div> : null}
@@ -127,15 +196,15 @@ const Auth = ({ mode, lang, onMode, onEnter }) => {
                   <input className="input" type="email" required autoComplete="username" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="name@company.com" />
                 </div>
               </label>
-              {creating ? (
+              {(
                 <label className="field">
                   <span>{text.password}</span>
                   <div className="password-wrap">
-                    <input className="input" type={show ? "text" : "password"} required minLength={8} autoComplete="new-password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder={text.passwordPh} />
+                    <input className="input" type={show ? "text" : "password"} required minLength={creating ? 8 : 1} autoComplete={creating ? "new-password" : "current-password"} value={password} onChange={(event) => setPassword(event.target.value)} placeholder={text.passwordPh} />
                     <button type="button" onClick={() => setShow((value) => !value)}>{show ? text.hide : text.show}</button>
                   </div>
                 </label>
-              ) : null}
+              )}
               {creating ? null : (
                 <button
                   type="button"
@@ -144,7 +213,7 @@ const Auth = ({ mode, lang, onMode, onEnter }) => {
                     setError("");
                     setEmail(DEMO.email);
                     setPassword(DEMO.password);
-                    finish(login(DEMO));
+                    login(DEMO).then(finish).catch(() => setError(text.errGeneric));
                   }}
                 >
                   {text.demo}
@@ -187,9 +256,62 @@ const Deviation = ({ value, flag }) => {
 
 const needsPerson = (line) => line.match === "needs_review" || line.flag === "unit";
 
+const FILTERS = {
+  all: () => true,
+  under: (line) => line.flag === "under",
+  over: (line) => line.flag === "over",
+  gap: (line) => line.flag === "gap",
+  arithmetic: (line) => line.flag === "arithmetic",
+  unmatched: (line) => line.match === "needs_review" && !line.coded && Number(line.confidence) < 0.5,
+  wait: needsPerson,
+};
+
+const StatusCell = ({ line, text, onGap }) => (
+  <div className="status-cell">
+    <span className={`tag tag-${line.flag}`}>{text.flags[line.flag]}</span>
+    {line.gap ? (
+      <div className="pair" role="group" aria-label={text.flags.gap}>
+        <button type="button" className={line.included ? "on" : ""} onClick={() => onGap(true)}>{text.required}</button>
+        <button type="button" className={!line.included ? "on" : ""} onClick={() => onGap(false)}>{text.notNeeded}</button>
+      </div>
+    ) : null}
+  </div>
+);
+
+const FileProgress = ({ review, text, waiting }) => {
+  const total = review.lines.length;
+  const matched = review.lines.filter((line) => line.match === "confirmed").length;
+  const flagged = review.lines.filter((line) => line.flag && line.flag !== "close").length + (review.scope?.length || 0);
+  const choice = review.decision?.choice;
+  const steps = [
+    { label: text.progress[0], value: `${total} ${text.linesRead}`, done: total > 0 },
+    { label: text.progress[1], value: `${matched} ${text.matchedOf} ${total}`, done: waiting === 0 },
+    { label: text.progress[2], value: `${flagged} ${text.flagged}`, done: waiting === 0 },
+    { label: text.progress[3], value: choice ? text.decided[choice] : text.pending, done: Boolean(choice) },
+  ];
+  const current = steps.findIndex((step) => !step.done);
+  const hint = waiting ? text.nextConfirm(waiting) : choice ? text.nextExport : text.nextDecide;
+  return (
+    <section className="progress-card">
+      <ol className="progress">
+        {steps.map((step, index) => (
+          <li key={step.label} className={step.done ? "done" : index === current ? "now" : ""}>
+            <span className="dot">{step.done ? <Check size={12} strokeWidth={3} /> : index + 1}</span>
+            <div>
+              <b>{step.label}</b>
+              <small>{step.value}</small>
+            </div>
+          </li>
+        ))}
+      </ol>
+      <p className="next-hint"><span className="eyebrow">{text.nextStep}</span>{hint}</p>
+    </section>
+  );
+};
+
 const Review = ({ lang, review, setReview }) => {
   const text = copy[lang];
-  const [note, setNote] = useState("");
+  const [note, setNote] = useState(review.decision?.note || "");
   const [codes, setCodes] = useState({});
   const [focus, setFocus] = useState("all");
   const name = (line) => (lang === "az" ? line.name_az : line.name_en);
@@ -197,33 +319,45 @@ const Review = ({ lang, review, setReview }) => {
   const section = (line) => (lang === "az" ? line.section_az : line.section_en);
   const waiting = review.lines.filter((line) => line.match === "needs_review").length;
   const apply = (next) => { if (next) setReview(next); };
+  const scope = review.scope || [];
+  const count = (id) => review.lines.filter(FILTERS[id]).length + (id === "gap" ? scope.length : 0);
+  const visible = review.lines.filter(FILTERS[focus]);
+  const showScope = (focus === "all" || focus === "gap") && scope.length > 0;
+  const choice = review.decision?.choice;
+  const exportPdf = async () => {
+    const { downloadReportPdf } = await import("./engine/reportPdf.js");
+    await downloadReportPdf(review, lang);
+  };
 
   return (
     <div className="page">
       <header className="page-head">
         <div>
           <h1>{lang === "az" ? review.title_az : review.title_en}</h1>
-          <p>{review.lines.length} {text.lines}{waiting ? ` · ${waiting} ${text.waitingShort}` : ""}</p>
+          <p>{review.lines.length} {text.lines}{waiting ? `, ${waiting} ${text.waitingShort}` : ""}, {text.indexShort} × {Number(review.index_factor).toFixed(4)}</p>
         </div>
         <div className="head-actions">
-          <button type="button" className="btn btn-ghost" onClick={() => downloadBlob(`${review.title_en}.csv`, reportCsv(review.id), "text/csv")}>
-            <Download size={15} /> {text.exportTable}
-          </button>
-          <button type="button" className="btn btn-ghost" onClick={async () => { const { downloadReportPdf } = await import("./engine/reportPdf.js"); await downloadReportPdf(review, lang); }}>
-            <Download size={15} /> {text.exportReport}
-          </button>
           {review.source === "sample" ? (
             <button type="button" className="btn btn-ghost" onClick={() => apply(resetSample())}>{text.reset}</button>
           ) : null}
+          <button type="button" className="btn btn-ghost" onClick={() => downloadBlob(`${review.title_en.replace(/\.(csv|txt|xlsx?|xlsm|pdf|docx?)$/i, "")} check.csv`, reportCsv(review.id), "text/csv")}>
+            <Download size={15} /> {text.exportTable}
+          </button>
+          <button type="button" className={`btn ${choice ? "btn-primary" : "btn-ghost"}`} onClick={exportPdf}>
+            <FileText size={15} /> {text.exportReport}
+          </button>
         </div>
       </header>
 
+      <FileProgress review={review} text={text} waiting={waiting} />
+
       <section className="score">
         <div className="score-side">
-          <div className={`lamp ${review.score.light}`} aria-hidden="true"><i /><i /><i /></div>
+          <TrafficLight light={review.score.light} />
           <div>
-            <div className="eyebrow">Risk</div>
-            <strong>{text.light[review.score.light]}</strong>
+            <div className="eyebrow">{text.codeLabel}</div>
+            <strong className={`score-code ${codeClass(review.score.light)}`}>{text.light[review.score.light]}</strong>
+            <span>{text.lightNote[review.score.light]}</span>
           </div>
         </div>
         <div className="score-copy">
@@ -232,9 +366,9 @@ const Review = ({ lang, review, setReview }) => {
           {waiting ? <p className="wait">{text.waiting}</p> : null}
         </div>
         <div className="metrics">
-          <div className="metric"><span>{text.contractor}</span><b>{money(review.score.contractor_total)}</b></div>
-          <div className="metric"><span>{text.reference}</span><b>{money(review.score.reference_total)}</b></div>
-          <div className="metric"><span>{text.difference}</span><b>{signed(review.score.deviation_pct)}</b></div>
+          <div className="metric"><span>{text.contractor}</span><b><Amount value={review.score.contractor_total} /></b></div>
+          <div className="metric"><span>{text.reference}</span><b><Amount value={review.score.reference_total} /></b></div>
+          <div className="metric"><span>{text.difference}</span><b className={Number(review.score.deviation_pct) < 0 ? "risk-red" : ""}>{signed(review.score.deviation_pct)}</b></div>
         </div>
       </section>
 
@@ -246,42 +380,38 @@ const Review = ({ lang, review, setReview }) => {
         <div><span>{text.profit}</span><b>{money(review.score.parts?.profit)}</b></div>
       </section>
 
-      {review.scope?.length ? (
-        <section className="card scope-card">
-          <h2>{text.scopeTitle}</h2>
-          <div className="scope-list">
-            {review.scope.map((item) => (
-              <span className="tag tag-gap" key={item.code}>{lang === "az" ? item.name_az : item.name_en}</span>
-            ))}
-          </div>
-        </section>
-      ) : null}
-
       <div className="table-card wide">
         <div className="table-head">
           <h2>{text.lineItems}</h2>
-          <div className="seg block wrap">
+          <div className="seg block wrap filters">
             {[
               ["all", text.focusAll],
               ["under", text.issues.under],
               ["over", text.issues.over],
-              ["gap", text.issues.gap],
-              ["unmatched", text.issues.unmatched],
-              ["wait", `${text.focusWait}${review.lines.filter(needsPerson).length ? ` ${review.lines.filter(needsPerson).length}` : ""}`],
-            ].map(([id, label]) => (
-              <button key={id} type="button" className={focus === id ? "on" : ""} onClick={() => setFocus(id)}>{label}</button>
-            ))}
+              ["gap", text.flags.gap],
+              ["arithmetic", text.issues.arithmetic],
+              ["unmatched", text.focusUnmatched],
+              ["wait", text.focusWait],
+            ].map(([id, label]) => {
+              const n = count(id);
+              if (id !== "all" && !n) return null;
+              return (
+                <button key={id} type="button" className={focus === id ? "on" : ""} onClick={() => setFocus(id)}>
+                  {label} <em>{n}</em>
+                </button>
+              );
+            })}
           </div>
         </div>
-        <table>
+        <table className="lines-table">
           <colgroup>
-            <col style={{ width: "28%" }} />
+            <col style={{ width: "31%" }} />
+            <col style={{ width: "7%" }} />
             <col style={{ width: "8%" }} />
-            <col style={{ width: "10%" }} />
-            <col style={{ width: "12%" }} />
-            <col style={{ width: "12%" }} />
-            <col style={{ width: "16%" }} />
+            <col style={{ width: "11%" }} />
+            <col style={{ width: "11%" }} />
             <col style={{ width: "14%" }} />
+            <col style={{ width: "18%" }} />
           </colgroup>
           <thead>
             <tr>
@@ -295,14 +425,7 @@ const Review = ({ lang, review, setReview }) => {
             </tr>
           </thead>
           <tbody>
-            {review.lines.filter((line) => {
-              if (focus === "under") return line.flag === "under";
-              if (focus === "over") return line.flag === "over";
-              if (focus === "gap") return line.flag === "gap";
-              if (focus === "unmatched") return line.match === "needs_review" && !line.coded && Number(line.confidence) < 0.5;
-              if (focus === "wait") return needsPerson(line);
-              return true;
-            }).map((line, index, list) => {
+            {visible.map((line, index, list) => {
               const previous = list[index - 1];
               const showSection = !previous || previous.section_az !== line.section_az;
               return (
@@ -312,77 +435,141 @@ const Review = ({ lang, review, setReview }) => {
                       <td colSpan={7}>{section(line)}</td>
                     </tr>
                   ) : null}
-                  <tr className={line.included ? "" : "out"}>
+                  <tr className={`${line.included ? "" : "out"}${line.match === "needs_review" ? " needs" : ""}`}>
                     <td>
                       <span className="code">{line.code}</span>
                       <span className="work-name">{name(line)}</span>
-                      {line.desn ? <span className="desn-ref">{line.desn.code} · {line.desn.title}</span> : null}
-                      {line.unit_clash ? <span className="desn-ref">{line.unit} · {line.ref_unit}</span> : null}
-                      {line.confirmed_by ? <span className="desn-ref">{line.confirmed_by}</span> : null}
-                      {line.match === "needs_review" && !line.gap ? (
-                        <span className="inline">
-                          <select value={codes[line.id] || line.code} onChange={(event) => setCodes({ ...codes, [line.id]: event.target.value })} aria-label={text.suggested}>
-                            {review.norm_choices.map((choice) => (
-                              <option key={choice.code} value={choice.code}>
-                                {choice.code} · {lang === "az" ? choice.name_az : choice.name_en}
-                              </option>
-                            ))}
-                          </select>
-                          <button type="button" className="btn btn-soft" onClick={() => apply(confirmLine(line.id, codes[line.id] || line.code, review.id, actor))}>
-                            {text.confirm}
-                          </button>
-                        </span>
+                      {line.desn ? <span className="desn-ref">{line.desn.code}, {line.desn.title}</span> : null}
+                      {line.unit_clash ? <span className="desn-ref">{line.unit} / {line.ref_unit}</span> : null}
+                      {line.gap ? <span className="row-note">{text.missingRow}</span> : null}
+                      {line.confirmed_by ? <span className="row-note ok"><Check size={12} /> {line.confirmed_by}</span> : null}
+                      {line.match === "needs_review" ? (
+                        <div className="match-fix">
+                          <small>{text.confirmHint}{Number(line.confidence) > 0 && Number(line.confidence) < 1 ? <b className="conf">{text.confidence(Math.round(Number(line.confidence) * 100))}</b> : null}</small>
+                          <div>
+                            <select value={codes[line.id] || line.code} onChange={(event) => setCodes({ ...codes, [line.id]: event.target.value })} aria-label={text.suggested}>
+                              {review.norm_choices.map((option) => (
+                                <option key={option.code} value={option.code}>
+                                  {option.code} {lang === "az" ? option.name_az : option.name_en}
+                                </option>
+                              ))}
+                            </select>
+                            <button type="button" className="btn btn-soft" onClick={() => { apply(confirmLine(line.id, codes[line.id] || line.code, review.id, actor)); toast(text.toastConfirmed); }}>
+                              <Check size={14} /> {text.confirm}
+                            </button>
+                          </div>
+                        </div>
                       ) : null}
                     </td>
                     <td>{line.unit}</td>
                     <td className="num">{line.qty}</td>
-                    <td className="num">{money(line.contractor_rate)}</td>
+                    <td className="num">{line.gap ? <span className="muted">0.00</span> : money(line.contractor_rate)}</td>
                     <td className="num">{money(line.reference_rate)}</td>
                     <td className="num"><Deviation value={line.deviation_pct} flag={line.flag} /></td>
-                    <td>
-                      <span className={`tag tag-${line.flag}`}>{text.flags[line.flag]}</span>
-                      {line.gap ? (
-                        <span className="inline">
-                          <span className="seg">
-                            <button type="button" className={line.included ? "on" : ""} onClick={() => apply(setGap(line.id, true, review.id))}>{text.required}</button>
-                            <button type="button" className={!line.included ? "on" : ""} onClick={() => apply(setGap(line.id, false, review.id))}>{text.notNeeded}</button>
-                          </span>
-                        </span>
-                      ) : null}
-                    </td>
+                    <td><StatusCell line={line} text={text} onGap={(required) => apply(setGap(line.id, required, review.id))} /></td>
                   </tr>
                 </Fragment>
               );
             })}
+            {showScope ? (
+              <>
+                <tr className="section">
+                  <td colSpan={7}>{text.scopeTitle}</td>
+                </tr>
+                {scope.map((item) => (
+                  <tr key={`scope-${item.code}`} className="scope-row">
+                    <td>
+                      <span className="code">{item.code}</span>
+                      <span className="work-name">{lang === "az" ? item.name_az : item.name_en}</span>
+                      <span className="row-note">{text.scopeRow}</span>
+                    </td>
+                    <td />
+                    <td />
+                    <td />
+                    <td />
+                    <td />
+                    <td><div className="status-cell"><span className="tag tag-gap">{text.flags.gap}</span></div></td>
+                  </tr>
+                ))}
+              </>
+            ) : null}
+            {!visible.length && !showScope ? (
+              <tr><td colSpan={7} className="empty-row">{text.noLines}</td></tr>
+            ) : null}
           </tbody>
         </table>
       </div>
 
       <section className="decision">
-        <div className="grow">
-          <label htmlFor="note">{text.note}</label>
-          <input id="note" value={note} onChange={(event) => setNote(event.target.value)} />
-          {review.decision ? <p className="saved">{text.saved}: {text[review.decision.choice] || review.decision.choice}{review.decision.by ? ` · ${review.decision.by}` : ""}</p> : null}
+        <div className="decision-copy">
+          <h2>{text.decisionTitle}</h2>
+          <p>{text.decisionNote}</p>
+          {review.decision ? (
+            <p className="saved">
+              <Check size={14} /> {text.decided[review.decision.choice] || review.decision.choice}
+              {review.decision.by ? `, ${review.decision.by}` : ""}
+              {review.decision.at ? `, ${new Date(review.decision.at).toLocaleString(lang === "az" ? "az-AZ" : "en-GB", { dateStyle: "medium", timeStyle: "short" })}` : ""}
+            </p>
+          ) : null}
         </div>
-        <button type="button" className="btn btn-primary" onClick={() => apply(decide("accept", note, review.id, actor))}>{text.accept}</button>
-        <button type="button" className="btn btn-ghost" onClick={() => apply(decide("query", note, review.id, actor))}>{text.query}</button>
-        <button type="button" className="btn btn-ghost" onClick={() => apply(decide("reject", note, review.id, actor))}>{text.reject}</button>
+        <div className="decision-form">
+          <label htmlFor="note">{text.note}</label>
+          <textarea id="note" rows={2} value={note} placeholder={text.notePh} onChange={(event) => setNote(event.target.value)} />
+          {waiting ? <p className="warn-line">{text.unconfirmedWarn(waiting)}</p> : null}
+          <div className="decision-buttons">
+            <button type="button" className={`choice c-accept${choice === "accept" ? " on" : ""}`} onClick={() => { apply(decide("accept", note, review.id, actor)); toast(text.toastDecided); }}>
+              <Check size={15} /> {text.accept}
+            </button>
+            <button type="button" className={`choice c-query${choice === "query" ? " on" : ""}`} onClick={() => { apply(decide("query", note, review.id, actor)); toast(text.toastDecided); }}>
+              <MessageSquare size={15} /> {text.query}
+            </button>
+            <button type="button" className={`choice c-reject${choice === "reject" ? " on" : ""}`} onClick={() => { apply(decide("reject", note, review.id, actor)); toast(text.toastDecided); }}>
+              <Ban size={15} /> {text.reject}
+            </button>
+          </div>
+        </div>
       </section>
     </div>
   );
 };
 
+const fileKind = (item) => {
+  const name = String(item.title_en || "").toLowerCase();
+  const ext = name.includes(".") ? name.split(".").pop() : "";
+  if (["csv", "xlsx", "xls", "pdf", "docx", "txt"].includes(ext)) return ext === "xls" ? "xlsx" : ext;
+  return "set";
+};
+
+const KindBadge = ({ item }) => {
+  const kind = fileKind(item);
+  return <span className={`kind-badge k-${kind}`}>{kind === "set" ? "FHN" : kind.toUpperCase()}</span>;
+};
+
+const DecisionPill = ({ choice, text }) => (
+  <span className={`decision-pill d-${choice || "none"}`}>{text.decided[choice] || text.decided.none}</span>
+);
+
 const Tenders = ({ lang, review, onOpen, onUpload, onRemove, onClear }) => {
   const text = copy[lang];
   const [reading, setReading] = useState(false);
+  const [readingName, setReadingName] = useState("");
   const [fileError, setFileError] = useState("");
   const [dragOver, setDragOver] = useState(false);
+  const [filter, setFilter] = useState("all");
+  const [asking, setAsking] = useState("");
   const fileRef = useRef(null);
   const projects = review.projects || [];
   const uploads = projects.filter((item) => item.source === "upload").length;
+  const openCount = projects.filter((item) => !item.decision).length;
+  const shown = projects.filter((item) => {
+    if (filter === "open") return !item.decision;
+    if (filter === "done") return Boolean(item.decision);
+    return true;
+  });
 
   const takeBytes = async (filename, bytes) => {
     setFileError("");
+    setReadingName(filename);
     setReading(true);
     try {
       await onUpload({ filename, bytes });
@@ -398,16 +585,24 @@ const Tenders = ({ lang, review, onOpen, onUpload, onRemove, onClear }) => {
     await takeBytes(file.name, new Uint8Array(buffer));
   };
 
+  const pick = () => { if (!reading) fileRef.current?.click(); };
+
   return (
     <div className="page">
       <header className="page-head">
         <div>
           <h1>{text.tendersTitle}</h1>
+          <p>{projects.length} {text.journeyFiles}, {openCount} {text.filterOpen.toLowerCase()}</p>
         </div>
         <div className="head-actions">
           {uploads ? (
-            <button type="button" className="btn btn-ghost" onClick={onClear}>
-              <Trash2 size={15} /> {text.clearUploads}
+            <button
+              type="button"
+              className={`btn ${asking === "all" ? "btn-danger" : "btn-ghost"}`}
+              onBlur={() => setAsking("")}
+              onClick={() => { if (asking === "all") { setAsking(""); onClear(); } else setAsking("all"); }}
+            >
+              <Trash2 size={15} /> {asking === "all" ? text.removeAsk : text.clearUploads}
             </button>
           ) : null}
         </div>
@@ -423,63 +618,125 @@ const Tenders = ({ lang, review, onOpen, onUpload, onRemove, onClear }) => {
           takeFile(file);
         }}
       />
-      {reading ? (
+      {reading ? createPortal(
         <div className="read-stage" role="status">
           <Brand onDark hint={copy[lang].product} />
+          {readingName ? <p className="read-name"><FileText size={14} /> {readingName}</p> : null}
           <Ledger3D pose="read" captions={copy[lang].readingSteps} />
-        </div>
+        </div>,
+        document.body,
       ) : null}
 
-      <section
-        className={`dropzone${dragOver ? " is-over" : ""}`}
-        role="button"
-        tabIndex={0}
-        onClick={() => { if (!reading) fileRef.current?.click(); }}
-        onKeyDown={(event) => { if (event.key === "Enter" && !reading) fileRef.current?.click(); }}
-        onDragOver={(event) => { event.preventDefault(); setDragOver(true); }}
-        onDragLeave={() => setDragOver(false)}
-        onDrop={(event) => {
-          event.preventDefault();
-          setDragOver(false);
-          takeFile(event.dataTransfer.files?.[0]);
-        }}
-      >
-        <FileSpreadsheet size={22} />
-        <div>
+      <section className="upload">
+        <div
+          className={`upload-drop${dragOver ? " is-over" : ""}`}
+          role="button"
+          tabIndex={0}
+          onClick={pick}
+          onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); pick(); } }}
+          onDragOver={(event) => { event.preventDefault(); setDragOver(true); }}
+          onDragLeave={() => setDragOver(false)}
+          onDrop={(event) => {
+            event.preventDefault();
+            setDragOver(false);
+            takeFile(event.dataTransfer.files?.[0]);
+          }}
+        >
+          <div className="upload-art" aria-hidden="true">
+            <span className="mini k-xlsx">XLSX</span>
+            <span className="mini k-pdf">PDF</span>
+            <span className="mini k-csv">CSV</span>
+            <span className="upload-arrow"><Upload size={18} /></span>
+          </div>
           <strong>{reading ? text.reading : text.dropTitle}</strong>
-          <p>{fileError || text.dropHelp}</p>
+          <p>{text.dropHelp}</p>
+          <span className="btn btn-primary upload-btn"><FileSpreadsheet size={15} /> {text.browse}</span>
+          <div className="format-row">
+            {text.formats.map((format) => <span key={format}>{format}</span>)}
+          </div>
+          {fileError ? <div className="banner" role="alert">{fileError}</div> : null}
+          <p className="privacy"><Lock size={13} /> {text.privacy}</p>
         </div>
+        <aside className="upload-help">
+          <h2>{text.fileNeeds}</h2>
+          <ol className="column-list">
+            {text.columns.map((name) => (
+              <li key={name}><b>{name}</b></li>
+            ))}
+          </ol>
+          <p className="help-note">{text.fileNeedsNote}</p>
+          <a className="btn btn-ghost" href={SAMPLES[0].file} download={SAMPLES[0].filename}>
+            <Download size={15} /> {text.template}
+          </a>
+        </aside>
       </section>
 
-      <div className="project-grid">
-        {projects.map((item) => (
-          <div className="card tender-card" key={item.id}>
-            <button type="button" className="tender-open" onClick={() => onOpen(item.id, "review")}>
-              <div className="tender-top">
-                <span className="avatar"><img src="/abb-mark.png" alt="" /></span>
-                <div style={{ flex: 1 }}>
-                  <h3>{lang === "az" ? item.title_az : item.title_en}</h3>
-                  <p>{item.lines} {text.lines}{item.waiting ? ` · ${item.waiting} ${text.waitingShort}` : ""}</p>
-                </div>
-                <ShieldCheck size={16} color="#1B63ED" />
-              </div>
-              <div className="tender-foot">
-                <span className={`risk-${item.light}`}>{text.light[item.light]}</span>
-                <span>{signed(item.deviation_pct)}</span>
-              </div>
+      <div className="list-head">
+        <div className="seg block wrap">
+          {[
+            ["all", text.filterAll, projects.length],
+            ["open", text.filterOpen, openCount],
+            ["done", text.filterDone, projects.length - openCount],
+          ].map(([id, label, count]) => (
+            <button key={id} type="button" className={filter === id ? "on" : ""} onClick={() => setFilter(id)}>
+              {label} <em>{count}</em>
             </button>
-            <div className="tender-actions">
-              <button type="button" onClick={() => onOpen(item.id, "review")}>{text.nav.review}</button>
-              <button type="button" onClick={() => onOpen(item.id, "compare")}>{text.nav.compare}</button>
-            </div>
-            {item.id !== "sample" ? (
-              <button type="button" className="tender-remove" aria-label={text.removeProject} onClick={() => onRemove(item.id)}>
-                <Trash2 size={14} />
-              </button>
-            ) : null}
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
+
+      {shown.length ? (
+        <div className="project-grid">
+          {shown.map((item) => (
+            <div className={`card tender-card l-${item.light}`} key={item.id} onMouseLeave={() => { if (asking === item.id) setAsking(""); }}>
+              <button type="button" className="tender-open" onClick={() => onOpen(item.id, "review")}>
+                <div className="tender-top">
+                  <KindBadge item={item} />
+                  <div className="tender-name">
+                    <h3 title={lang === "az" ? item.title_az : item.title_en}>{lang === "az" ? item.title_az : item.title_en}</h3>
+                    <p>{item.lines} {text.lines}{item.waiting ? `, ${item.waiting} ${text.waitingShort}` : ""}</p>
+                  </div>
+                </div>
+                <div className="tender-figure">
+                  <div>
+                    <strong>{item.deviation_pct == null ? "0.0%" : signed(item.deviation_pct)}</strong>
+                    <small>{text.vsReference}</small>
+                  </div>
+                  <span className={`code-pill ${codeClass(item.light)}`}>{text.light[item.light]} {text.lightNote[item.light]}</span>
+                </div>
+                <div className="reasons">
+                  {[
+                    ["under", item.issues?.under],
+                    ["arithmetic", item.issues?.arithmetic],
+                    ["gap", item.issues?.gap],
+                    ["over", item.issues?.over],
+                  ].filter(([, n]) => n).map(([key, n]) => (
+                    <span key={key} className={`reason r-${key}`}><i />{n} {n === 1 && text.reasonsOne?.[key] ? text.reasonsOne[key] : text.reasons[key]}</span>
+                  ))}
+                  {!item.issues?.under && !item.issues?.arithmetic && !item.issues?.gap && !item.issues?.over
+                    ? <span className="reason r-clean"><i />{text.reasons.clean}</span> : null}
+                </div>
+                {item.decision ? <div className="tender-foot"><DecisionPill choice={item.decision} text={text} /></div> : null}
+              </button>
+              <div className="tender-actions">
+                <button type="button" onClick={() => onOpen(item.id, "review")}><ShieldCheck size={14} /> {text.nav.review}</button>
+                <button type="button" onClick={() => onOpen(item.id, "compare")}><GitCompare size={14} /> {text.nav.compare}</button>
+              </div>
+              {item.id !== "sample" ? (
+                <button
+                  type="button"
+                  className={`tender-remove${asking === item.id ? " ask" : ""}`}
+                  aria-label={text.removeProject}
+                  onBlur={() => setAsking("")}
+                  onClick={() => { if (asking === item.id) { setAsking(""); onRemove(item.id); } else setAsking(item.id); }}
+                >
+                  <Trash2 size={14} />{asking === item.id ? <span>{text.removeAsk}</span> : null}
+                </button>
+              ) : null}
+            </div>
+          ))}
+        </div>
+      ) : <div className="empty">{text.noFiles}</div>}
     </div>
   );
 };
@@ -493,6 +750,47 @@ const Choice = ({ value, options, format, onPick }) => (
     ))}
   </div>
 );
+
+const IndexPanel = ({ text, prefs, applyPrefs }) => {
+  const [rate, setRate] = useState(String(prefs.annualIndex));
+  const save = () => {
+    applyPrefs({ annualIndex: Number(String(rate).replace(",", ".")) || 0 });
+    toast(text.indexSaved);
+  };
+  const years = prefs.tenderYear - prefs.baseYear;
+  return (
+    <section className="card settings-panel">
+      <h2>{text.indexTitle}</h2>
+      <div className="setting-row">
+        <span>{text.baseYear}</span>
+        <select className="select" value={prefs.baseYear} onChange={(event) => applyPrefs({ baseYear: Number(event.target.value) })}>
+          {BASE_YEARS.map((year) => <option key={year} value={year}>{year}</option>)}
+        </select>
+      </div>
+      <div className="setting-row">
+        <span>{text.tenderYear}</span>
+        <select className="select" value={prefs.tenderYear} onChange={(event) => applyPrefs({ tenderYear: Number(event.target.value) })}>
+          {YEARS.map((year) => <option key={year} value={year}>{year}</option>)}
+        </select>
+      </div>
+      <div className="setting-row">
+        <span>{text.annualIndex}</span>
+        <form className="rate-input" onSubmit={(event) => { event.preventDefault(); save(); }}>
+          <input className="input" inputMode="decimal" value={rate} onChange={(event) => setRate(event.target.value)} onBlur={save} aria-label={text.annualIndex} />
+          <em>% / {text.perYear}</em>
+        </form>
+      </div>
+      <div className="setting-row">
+        <span>{text.indexResult}</span>
+        <div className="index-result">
+          <b>× {prefs.index.toFixed(4)}</b>
+          <small>(1 + {prefs.annualIndex}%) ^ {years}</small>
+        </div>
+      </div>
+      <p className="setting-note">{text.indexNote}</p>
+    </section>
+  );
+};
 
 const SettingsPage = ({ lang, setLang, user, setUser, onLogout, setReview }) => {
   const text = copy[lang];
@@ -529,7 +827,7 @@ const SettingsPage = ({ lang, setLang, user, setUser, onLogout, setReview }) => 
             onSubmit={(event) => {
               event.preventDefault();
               const next = renameUser(name);
-              if (next) setUser(next);
+              if (next) { setUser(next); toast(text.toastNamed); }
             }}
           >
             <input className="input" aria-label={text.auth.name} value={name} onChange={(event) => setName(event.target.value)} />
@@ -557,11 +855,12 @@ const SettingsPage = ({ lang, setLang, user, setUser, onLogout, setReview }) => 
             />
           </div>
         </section>
+        <IndexPanel text={text} prefs={prefs} applyPrefs={applyPrefs} />
         <section className="card settings-panel">
           <h2>{text.rulesTitle}</h2>
           <div className="setting-row">
             <span>{text.underLabel}</span>
-            <Choice value={prefs.under} options={UNDERS} format={(value) => `${value}%`} onPick={(under) => applyPrefs({ under })} />
+            <Choice value={prefs.under} options={UNDERS} format={pct} onPick={(under) => applyPrefs({ under })} />
           </div>
           <div className="setting-row">
             <span>{text.overLabel}</span>
@@ -569,7 +868,7 @@ const SettingsPage = ({ lang, setLang, user, setUser, onLogout, setReview }) => 
           </div>
           <div className="setting-row">
             <span>{text.severeLabel}</span>
-            <Choice value={prefs.severe} options={SEVERES} format={(value) => `${value}%`} onPick={(severe) => applyPrefs({ severe })} />
+            <Choice value={prefs.severe} options={SEVERES} format={pct} onPick={(severe) => applyPrefs({ severe })} />
           </div>
           <div className="setting-row">
             <span>{text.issues.arithmetic}</span>
@@ -589,7 +888,6 @@ const SettingsPage = ({ lang, setLang, user, setUser, onLogout, setReview }) => 
           </div>
           <div className="settings-actions">
             <button type="button" className="btn btn-ghost" onClick={() => applyPrefs({
-              index: DEFAULT_PREFS.index,
               under: DEFAULT_PREFS.under,
               over: DEFAULT_PREFS.over,
               severe: DEFAULT_PREFS.severe,
@@ -604,7 +902,7 @@ const SettingsPage = ({ lang, setLang, user, setUser, onLogout, setReview }) => 
         <section className="card settings-panel">
           <h2>{text.dataTitle}</h2>
           <div className="settings-actions data-actions">
-            <button type="button" className="btn btn-ghost" onClick={() => priceRef.current?.click()}>{text.loadPrices}{priceNote ? ` · ${priceNote}` : ""}</button>
+            <button type="button" className="btn btn-ghost" onClick={() => priceRef.current?.click()}>{text.loadPrices}{priceNote ? ` (${priceNote})` : ""}</button>
             <button type="button" className="btn btn-ghost" onClick={() => { resetAllNorms(); setPriceNote(""); setReview(snapshot()); }}>{text.resetBook}</button>
             <button type="button" className="btn btn-ghost" onClick={() => setReview(clearUploads())}>{text.clearUploads}</button>
             <input
@@ -618,6 +916,7 @@ const SettingsPage = ({ lang, setLang, user, setUser, onLogout, setReview }) => 
                 if (!file) return;
                 const count = importNormPrices(await file.text());
                 setPriceNote(String(count));
+                toast(text.toastPrices);
                 setReview(snapshot());
               }}
             />
@@ -628,12 +927,55 @@ const SettingsPage = ({ lang, setLang, user, setUser, onLogout, setReview }) => 
   );
 };
 
-const DatabasePage = ({ lang }) => {
+const DataNotice = ({ text, onLoaded }) => {
+  const pickRef = useRef(null);
+  return (
+    <section className="data-notice" role="note">
+      <div className="data-notice-head">
+        <span className="data-notice-icon"><CircleHelp size={18} /></span>
+        <div>
+          <h2>{text.dataNoticeTitle}</h2>
+          <p>{text.dataNoticeLead}</p>
+        </div>
+      </div>
+      <div className="data-notice-cols">
+        <div>
+          <span className="eyebrow">{text.dataReal}</span>
+          <ul className="ticks ok">{text.dataRealList.map((item) => <li key={item}><Check size={13} strokeWidth={3} />{item}</li>)}</ul>
+        </div>
+        <div>
+          <span className="eyebrow">{text.dataNeed}</span>
+          <ul className="ticks need">{text.dataNeedList.map((item) => <li key={item}><ArrowRight size={13} strokeWidth={2.5} />{item}</li>)}</ul>
+        </div>
+      </div>
+      <div className="data-notice-foot">
+        <code>code, labor, machinist, machine, material</code>
+        <button type="button" className="btn btn-primary" onClick={() => pickRef.current?.click()}><Upload size={15} /> {text.loadPrices}</button>
+        <input
+          ref={pickRef}
+          className="file-input"
+          type="file"
+          accept=".csv,text/csv"
+          onChange={async (event) => {
+            const file = event.target.files?.[0];
+            event.target.value = "";
+            if (!file) return;
+            const count = importNormPrices(await file.text());
+            toast(`${text.toastPrices}: ${count}`);
+            onLoaded();
+          }}
+        />
+      </div>
+    </section>
+  );
+};
+
+const DatabasePage = ({ lang, onChange }) => {
   const text = copy[lang];
   const prefs = readPrefs();
   const rows = listNorms().map((norm) => {
     const parts = rateParts(norm.labor, norm.machinist, norm.machine, norm.material, prefs.workType, prefs.index);
-    return { ...norm, parts, rate: referenceRate(norm, prefs.index) };
+    return { ...norm, parts, rate: parts.total };
   });
   const sections = [...new Set(rows.map((row) => row.section_en))].map((section) => {
     const items = rows.filter((row) => row.section_en === section);
@@ -656,10 +998,15 @@ const DatabasePage = ({ lang }) => {
       <header className="page-head">
         <div>
           <h1>{text.catalogTitle}</h1>
-          <p>{text.sourcesTitle}</p>
+          <p>{text.sourcesLead}</p>
         </div>
       </header>
-      <div className="table-card" style={{ padding: "4px 18px 8px" }}>
+      <DataNotice text={text} onLoaded={onChange} />
+      <div className="table-card">
+        <div className="table-head">
+          <h2>{text.sourcesTitle}</h2>
+          <span className="meta">{SOURCES.length}</span>
+        </div>
         <div className="source-list">
           {SOURCES.map((source) => (
             <article className="source-card" key={source.id}>
@@ -728,14 +1075,14 @@ const DatabasePage = ({ lang }) => {
         </table>
       </div>
       <section className="card settings-card">
-        <div className="table-head" style={{ padding: 0 }}>
+        <div className="table-head bare">
           <h2>{text.sampleBook}</h2>
-          <span className="meta">{rows.length} {text.lines} · {PRICE_BOOK}</span>
+          <span className="meta">{rows.length} {text.lines}, {PRICE_BOOK}</span>
         </div>
         <div className="mix-legend">
-          <span><i className="wage" style={{ background: "#1b63ed" }} />{text.wage}</span>
-          <span><i className="machine" style={{ background: "#7aa2f5" }} />{text.machine}</span>
-          <span><i className="material" style={{ background: "#0f7a62" }} />{text.material}</span>
+          <span><i style={{ background: "var(--brand)" }} />{text.wage}</span>
+          <span><i style={{ background: "var(--ref-fill)" }} />{text.machine}</span>
+          <span><i style={{ background: "var(--ok)" }} />{text.material}</span>
         </div>
         <div className="pattern-list">
           {sections.map((section) => {
@@ -798,6 +1145,7 @@ const ComparePage = ({ lang, review }) => {
       .sort((a, b) => a[1].rate - b[1].rate);
     return { ...line, other: others[0] || null };
   });
+  const scope = review.scope || [];
   const maxDev = Math.max(...lines.filter((line) => line.match === "confirmed").map((line) => Math.abs(Number(line.deviation_pct) || 0)), 1);
 
   return (
@@ -807,21 +1155,25 @@ const ComparePage = ({ lang, review }) => {
           <h1>{title}</h1>
           <p>{text.nav.compare}</p>
         </div>
+        <div className="code-key">
+          <span><CodeMark light={review.score.light} text={text} /> {text.lightNote[review.score.light]}</span>
+        </div>
       </header>
       <section className="stats dash-kpis">
-        <div className="stat"><span>{text.lines}</span><strong>{lines.length}</strong></div>
-        <div className="stat"><span>{text.contractor}</span><strong>{money(review.score.contractor_total)}</strong></div>
-        <div className="stat"><span>{text.reference}</span><strong>{money(review.score.reference_total)}</strong></div>
-        <div className="stat"><span>{text.difference}</span><strong>{signed(review.score.deviation_pct)}</strong></div>
+        <div className="stat"><span>{text.lineItems}</span><strong>{lines.length}</strong></div>
+        <div className="stat"><span>{text.contractor}</span><strong><Amount value={review.score.contractor_total} /></strong></div>
+        <div className="stat"><span>{text.reference}</span><strong><Amount value={review.score.reference_total} /></strong></div>
+        <div className="stat"><span>{text.difference}</span><strong className={Number(review.score.deviation_pct) < 0 ? "risk-red" : ""}>{signed(review.score.deviation_pct)}</strong></div>
       </section>
       <div className="table-card wide">
-        <table>
+        <table className="lines-table compare-table">
           <colgroup>
-            <col style={{ width: "36%" }} />
+            <col style={{ width: "32%" }} />
+            <col style={{ width: "12%" }} />
+            <col style={{ width: "12%" }} />
+            <col style={{ width: "12%" }} />
+            <col style={{ width: "18%" }} />
             <col style={{ width: "14%" }} />
-            <col style={{ width: "14%" }} />
-            <col style={{ width: "14%" }} />
-            <col style={{ width: "22%" }} />
           </colgroup>
           <thead>
             <tr>
@@ -830,33 +1182,54 @@ const ComparePage = ({ lang, review }) => {
               <th className="num">{text.reference}</th>
               <th className="num">{text.lowest}</th>
               <th>{text.deviation}</th>
+              <th>{text.status}</th>
             </tr>
           </thead>
           <tbody>
             {lines.map((line) => {
               const value = Number(line.deviation_pct) || 0;
               const tone = value < -5 ? "neg" : value > 5 ? "pos" : "ok";
+              const confirmed = line.match === "confirmed";
               return (
-                <tr key={line.id}>
+                <tr key={line.id} className={line.included ? "" : "out"}>
                   <td>
                     <span className="code">{line.code}</span>
                     <span className="work-name">{lang === "az" ? line.name_az : line.name_en}</span>
-                    {line.desn ? <span className="desn-ref">{line.desn.code} · {line.desn.title}</span> : null}
+                    {line.desn ? <span className="desn-ref">{line.desn.code}, {line.desn.title}</span> : null}
                   </td>
-                  <td className="num">{money(line.contractor_rate)}</td>
-                  <td className="num">{line.match === "confirmed" ? money(line.reference_rate) : ""}</td>
-                  <td className="num">{line.match === "confirmed" && line.other ? money(line.other[1].rate) : ""}</td>
+                  <td className="num">{line.gap ? <span className="muted">0.00</span> : money(line.contractor_rate)}</td>
+                  <td className="num">{confirmed ? money(line.reference_rate) : <span className="muted">{text.pending}</span>}</td>
+                  <td className="num">{confirmed && line.other ? money(line.other[1].rate) : <span className="muted">{text.noOther}</span>}</td>
                   <td>
-                    {line.match === "confirmed" ? (
+                    {confirmed && !line.gap ? (
                       <span className="bar-row">
                         <span className={`bar-track ${tone}`}><i style={{ width: `${(Math.abs(value) / maxDev) * 100}%` }} /></span>
                         <span>{signed(line.deviation_pct)}</span>
                       </span>
-                    ) : <span className="muted">{text.waitingShort}</span>}
+                    ) : <span className="muted">{line.gap ? text.missingRow : text.pending}</span>}
                   </td>
+                  <td><div className="status-cell"><span className={`tag tag-${line.flag}`}>{text.flags[line.flag]}</span></div></td>
                 </tr>
               );
             })}
+            {scope.length ? (
+              <>
+                <tr className="section"><td colSpan={6}>{text.compareMissing}</td></tr>
+                {scope.map((item) => (
+                  <tr key={`scope-${item.code}`} className="scope-row">
+                    <td>
+                      <span className="code">{item.code}</span>
+                      <span className="work-name">{lang === "az" ? item.name_az : item.name_en}</span>
+                    </td>
+                    <td className="num"><span className="muted">0.00</span></td>
+                    <td />
+                    <td />
+                    <td><span className="muted">{text.scopeRow}</span></td>
+                    <td><div className="status-cell"><span className="tag tag-gap">{text.flags.gap}</span></div></td>
+                  </tr>
+                ))}
+              </>
+            ) : null}
           </tbody>
         </table>
       </div>
@@ -881,7 +1254,7 @@ const Donut = ({ parts, center }) => {
             cy="60"
             r={radius}
             fill="none"
-            stroke={part.color}
+            style={{ stroke: part.color }}
             strokeWidth="14"
             strokeDasharray={`${slice} ${length - slice}`}
             transform={`rotate(${(cursor / total) * 360 - 90} 60 60)`}
@@ -895,7 +1268,7 @@ const Donut = ({ parts, center }) => {
   );
 };
 
-const Desk = ({ lang, review, onOpen }) => {
+const Desk = ({ lang, review, onOpen, onGo }) => {
   const text = copy[lang];
   const rows = extractedRows();
   const projects = review.projects || [];
@@ -917,14 +1290,14 @@ const Desk = ({ lang, review, onOpen }) => {
   }, 0);
   const unmatched = rows.filter((line) => line.match === "needs_review" && !line.coded && Number(line.confidence) < 0.5).length;
   const issues = [
-    { key: "under", label: text.issues.under, value: included.filter((line) => line.flag === "under").length, color: "#c0261b" },
-    { key: "over", label: text.issues.over, value: included.filter((line) => line.flag === "over").length, color: "#1b63ed" },
-    { key: "close", label: text.issues.close, value: included.filter((line) => line.flag === "close").length, color: "#0f7a62" },
-    { key: "arithmetic", label: text.issues.arithmetic, value: included.filter((line) => line.flag === "arithmetic").length, color: "#5b4b8a" },
-    { key: "unit", label: text.issues.unit, value: rows.filter((line) => line.flag === "unit").length, color: "#9a5b00" },
-    { key: "gap", label: text.issues.gap, value: rows.filter((line) => line.flag === "gap").length, color: "#8b95a5" },
-    { key: "unmatched", label: text.issues.unmatched, value: unmatched, color: "#5c6770" },
-    { key: "scope", label: text.issues.scope, value: scope, color: "#c0261b" },
+    { key: "under", label: text.issues.under, value: included.filter((line) => line.flag === "under").length, color: "var(--bad)" },
+    { key: "over", label: text.issues.over, value: included.filter((line) => line.flag === "over").length, color: "var(--brand)" },
+    { key: "close", label: text.issues.close, value: included.filter((line) => line.flag === "close").length, color: "var(--ok)" },
+    { key: "arithmetic", label: text.issues.arithmetic, value: included.filter((line) => line.flag === "arithmetic").length, color: "var(--violet)" },
+    { key: "unit", label: text.issues.unit, value: rows.filter((line) => line.flag === "unit").length, color: "var(--warn-fill)" },
+    { key: "gap", label: text.issues.gap, value: rows.filter((line) => line.flag === "gap").length, color: "var(--neutral-fill)" },
+    { key: "unmatched", label: text.issues.unmatched, value: unmatched, color: "var(--neutral-fill)" },
+    { key: "scope", label: text.issues.scope, value: scope, color: "var(--bad)" },
   ];
   const maxIssue = Math.max(...issues.map((item) => item.value), 1);
   const rank = { red: 0, amber: 1, green: 2 };
@@ -954,41 +1327,63 @@ const Desk = ({ lang, review, onOpen }) => {
     .sort((a, b) => a.deviation - b.deviation);
   const maxSection = Math.max(...sections.map((section) => Math.abs(section.deviation)), 1);
   const riskParts = [
-    { key: "red", label: text.light.red, value: lights.red, color: "#c0261b" },
-    { key: "amber", label: text.light.amber, value: lights.amber, color: "#c4841d" },
-    { key: "green", label: text.light.green, value: lights.green, color: "#0f7a62" },
+    { key: "red", label: text.light.red, value: lights.red, color: "var(--bad)" },
+    { key: "amber", label: text.light.amber, value: lights.amber, color: "var(--warn-fill)" },
+    { key: "green", label: text.light.green, value: lights.green, color: "var(--ok)" },
   ];
 
   return (
     <div className="page">
       <header className="page-head">
         <div>
+          <span className="eyebrow greet">{greeting(lang)}, {(currentUser()?.name || "").split(" ")[0]}. {new Date().toLocaleDateString(lang === "az" ? "az-AZ" : "en-GB", { weekday: "long", day: "numeric", month: "long" })}</span>
           <h1>{text.deskTitle}</h1>
+          <p>{text.deskLead(projects.length, waiting)}</p>
         </div>
       </header>
-      <section className="stats dash-kpis">
-        <div className="stat"><span>{text.light.red}</span><strong className="risk-red">{lights.red}</strong></div>
-        <div className="stat"><span>{text.light.amber}</span><strong className="risk-amber">{lights.amber}</strong></div>
-        <div className="stat"><span>{text.waitingShort}</span><strong>{waiting}</strong></div>
-        <div className="stat"><span>{text.difference}</span><strong className={moneyGap < 0 ? "risk-red" : moneyGap > 0 ? "risk-amber" : ""}>{gapText}</strong></div>
+      <Journey text={text} projects={projects} rows={rows} onGo={onGo} />
+      <NextUp text={text} lang={lang} projects={projects} onOpen={onOpen} onGo={onGo} />
+      <section className="kpis">
+        {["red", "amber", "green"].map((light) => (
+          <div className="kpi" key={light}>
+            <div className="kpi-label"><CodeMark light={light} text={text} /> {text.lightNote[light]}</div>
+            <strong className={`kpi-value risk-${light}`}>{lights[light]}</strong>
+            <span className="kpi-note">{text.ofFiles(lights[light], projects.length)}</span>
+          </div>
+        ))}
+        <div className="kpi">
+          <div className="kpi-label">{text.difference}</div>
+          <strong className={`kpi-value ${moneyGap < 0 ? "risk-red" : moneyGap > 0 ? "risk-amber" : ""}`}>
+            {gapText}<small>AZN</small>
+          </strong>
+          <span className="kpi-note">{reference ? signed(((contractor - reference) / reference) * 100) : ""} {text.vsReference}</span>
+        </div>
       </section>
       <div className="chart-row">
         <section className="chart-card">
-          <h2>{text.deskRisk}</h2>
+          <div className="chart-head">
+            <h2>{text.deskRisk}</h2>
+            <span>{projects.length}</span>
+          </div>
           <div className="risk-panel">
             <Donut parts={riskParts} center={projects.length} />
             <div className="risk-counts">
               {riskParts.map((part) => (
                 <div key={part.key}>
-                  <strong style={{ color: part.color }}>{part.value}</strong>
-                  <span>{part.label}</span>
+                  <CodeMark light={part.key} text={text} />
+                  <span className="share"><i style={{ width: `${(part.value / (projects.length || 1)) * 100}%`, background: part.color }} /></span>
+                  <span className="risk-name">{text.lightNote[part.key]}</span>
+                  <strong className={`risk-${part.key}`}>{part.value}</strong>
                 </div>
               ))}
             </div>
           </div>
         </section>
         <section className="chart-card">
-          <h2>{text.statusMix}</h2>
+          <div className="chart-head">
+            <h2>{text.statusMix}</h2>
+            <span>{issues.reduce((total, item) => total + item.value, 0)}</span>
+          </div>
           <div className="issue-grid">
             {issues.map((item) => (
               <div className="bar-row" key={item.key}>
@@ -1002,26 +1397,35 @@ const Desk = ({ lang, review, onOpen }) => {
       </div>
       <div className="chart-row">
         <section className="chart-card">
-          <h2>{text.gapChart}</h2>
+          <div className="chart-head">
+            <h2>{text.gapChart}</h2>
+            <span>{files.length}</span>
+          </div>
           <div className="bar-list">
             {files.map((item) => {
               const value = Number(item.deviation_pct) || 0;
-              const tone = item.light === "red" ? "neg" : item.light === "amber" ? "pos" : "ok";
+              const tone = codeClass(item.light);
               return (
                 <button type="button" className="bar-row" key={item.id} onClick={() => onOpen(item.id)}>
                   <strong>{title(item)}</strong>
                   <span className={`bar-track ${tone}`}><i style={{ width: `${(Math.abs(value) / maxGap) * 100}%` }} /></span>
-                  <span className={`risk-${item.light}`}>{signed(item.deviation_pct)}{item.waiting ? ` · ${item.waiting}` : ""}</span>
+                  <span className="bar-end">
+                    <CodeMark light={item.light} text={text} />
+                    <span className={`risk-${item.light}`}>{signed(item.deviation_pct)}</span>
+                  </span>
                 </button>
               );
             })}
           </div>
         </section>
         <section className="chart-card">
-          <h2>{text.deskMoney}</h2>
+          <div className="chart-head">
+            <h2>{text.deskMoney}</h2>
+            <span>{gapText}</span>
+          </div>
           <div className="legend">
-            <span><i style={{ background: "#1b63ed" }} />{text.contractor}</span>
-            <span><i style={{ background: "#9bb8f5" }} />{text.reference}</span>
+            <span><i style={{ background: "var(--brand)" }} />{text.contractor}</span>
+            <span><i style={{ background: "var(--ref-fill)" }} />{text.reference}</span>
           </div>
           <div className="bar-list">
             {fileMoney.map((file) => (
@@ -1031,15 +1435,21 @@ const Desk = ({ lang, review, onOpen }) => {
                   <span className="bar-track"><i className="contractor" style={{ width: `${(file.contractor / maxMoney) * 100}%` }} /></span>
                   <span className="bar-track"><i className="reference" style={{ width: `${(file.reference / maxMoney) * 100}%` }} /></span>
                 </span>
-                <span className={`risk-${file.light}`}>{signed(file.deviation_pct)}</span>
+                <span className="bar-end">
+                  <CodeMark light={file.light} text={text} />
+                  <span className={`risk-${file.light}`}>{signed(file.deviation_pct)}</span>
+                </span>
               </button>
             ))}
           </div>
         </section>
       </div>
       <section className="chart-card">
-        <h2>{text.deskSections}</h2>
-        <div className="bar-list">
+        <div className="chart-head">
+          <h2>{text.deskSections}</h2>
+          <span>{sections.length}</span>
+        </div>
+        <div className={`bar-list${sections.length > 3 ? " split" : ""}`}>
           {sections.map((section) => {
             const tone = section.deviation < -5 ? "neg" : section.deviation > 5 ? "pos" : "ok";
             return (
@@ -1052,6 +1462,146 @@ const Desk = ({ lang, review, onOpen }) => {
           })}
         </div>
       </section>
+    </div>
+  );
+};
+
+const ROLE_ICON = { code: Cpu, ai: ScanText, person: UserCheck };
+
+const Journey = ({ text, projects, rows, onGo }) => {
+  const waiting = rows.filter((line) => line.match === "needs_review").length;
+  const flagged = rows.filter((line) => line.flag && line.flag !== "close").length;
+  const decided = projects.filter((item) => item.decision).length;
+  const total = projects.length;
+  const state = {
+    upload: { value: `${total} ${text.journeyFiles}`, done: total > 0, view: "projects" },
+    match: { value: `${waiting} ${text.journeyWaiting}`, done: waiting === 0, view: "projects" },
+    check: { value: `${flagged} ${text.journeyFlags}`, done: total > 0, view: "projects" },
+    decide: { value: `${decided} / ${total} ${text.journeyDecided}`, done: total > 0 && decided === total, view: "projects" },
+    report: { value: `${decided} ${text.journeyReady}`, done: total > 0 && decided === total, view: "projects" },
+  };
+  const current = text.journey.findIndex((step) => !state[step.key].done);
+  return (
+    <section className="journey">
+      <div className="journey-head">
+        <h2>{text.journeyTitle}</h2>
+        <button type="button" className="link-btn" onClick={() => onGo("guide")}><BookOpen size={14} /> {text.help}</button>
+      </div>
+      <ol>
+        {text.journey.map((step, index) => {
+          const info = state[step.key];
+          const tone = info.done ? "done" : index === current ? "now" : "";
+          return (
+            <li key={step.key} className={tone}>
+              <button type="button" onClick={() => onGo(info.view)}>
+                <span className="dot">{info.done ? <Check size={12} strokeWidth={3} /> : index + 1}</span>
+                <b>{step.title}</b>
+                <em>{info.value}</em>
+              </button>
+            </li>
+          );
+        })}
+      </ol>
+    </section>
+  );
+};
+
+const NextUp = ({ text, lang, projects, onOpen, onGo }) => {
+  const rank = { red: 0, amber: 1, green: 2 };
+  const open = projects
+    .filter((item) => !item.decision)
+    .sort((a, b) => rank[a.light] - rank[b.light] || (Number(a.deviation_pct) || 0) - (Number(b.deviation_pct) || 0))
+    .slice(0, 5);
+  return (
+    <section className="chart-card next-up">
+      <div className="chart-head">
+        <h2>{text.nextUp}</h2>
+        <button type="button" className="btn btn-primary" onClick={() => onGo("projects")}><Upload size={15} /> {text.upload}</button>
+      </div>
+      {open.length ? (
+        <ul className="next-list">
+          {open.map((item) => (
+            <li key={item.id}>
+              <button type="button" onClick={() => onOpen(item.id)}>
+                <KindBadge item={item} />
+                <span className="next-name">
+                  <b>{lang === "az" ? item.title_az : item.title_en}</b>
+                  <small>{item.lines} {text.lines}{item.waiting ? `, ${item.waiting} ${text.waitingShort}` : ""}</small>
+                </span>
+                <CodeMark light={item.light} text={text} />
+                <span className={`next-dev risk-${item.light}`}>{signed(item.deviation_pct)}</span>
+                <span className="next-open">{text.open} <ArrowRight size={14} /></span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      ) : <p className="empty">{text.allDecided}</p>}
+    </section>
+  );
+};
+
+const GuidePage = ({ lang, onGo }) => {
+  const text = copy[lang];
+  const prefs = readPrefs();
+  return (
+    <div className="page guide">
+      <header className="page-head">
+        <div>
+          <h1>{text.guideTitle}</h1>
+          <p>{text.guideLead}</p>
+        </div>
+      </header>
+
+      <section className="card guide-block">
+        <h2>{text.guideJourney}</h2>
+        <ol className="guide-steps">
+          {text.guideSteps.map((step, index) => {
+            const Icon = ROLE_ICON[step.who];
+            return (
+              <li key={step.title}>
+                <span className="step-num">{index + 1}</span>
+                <div className="step-body">
+                  <h3>{step.title}</h3>
+                  <p>{step.body}</p>
+                  <div className="step-meta">
+                    <span className={`who w-${step.who}`}><Icon size={13} /> {text.who[step.who]}</span>
+                    <button type="button" className="link-btn" onClick={() => onGo(step.view)}>{text.goTo} <ArrowRight size={13} /></button>
+                  </div>
+                </div>
+              </li>
+            );
+          })}
+        </ol>
+      </section>
+
+      <div className="role-grid">
+        {text.roles.map((role) => {
+          const Icon = ROLE_ICON[role.key];
+          return (
+            <article className={`card role w-${role.key}`} key={role.key}>
+              <span className="role-icon"><Icon size={18} /></span>
+              <h3>{role.title}</h3>
+              <p>{role.body}</p>
+            </article>
+          );
+        })}
+      </div>
+
+      <section className="card guide-block">
+        <h2>{text.guideCodes}</h2>
+        <div className="code-rules">
+          {["red", "amber", "green"].map((light) => (
+            <div key={light} className="code-rule">
+              <div className={`lamp ${light}`} aria-hidden="true"><i /><i /><i /></div>
+              <div>
+                <span className="code-rule-title"><CodeMark light={light} text={text} /> {text.lightNote[light]}</span>
+                <p>{text.codeRules[light](prefs)}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
     </div>
   );
 };
@@ -1080,9 +1630,13 @@ const Shell = ({ user, setUser, onLogout, lang, setLang, review, setReview }) =>
     if (view === "review" || view === "compare") setView("projects");
   };
   const open = (next) => { if (next !== view) setView(next); };
+  const scroller = useRef(null);
+  const [bookVersion, setBookVersion] = useState(0);
+  useEffect(() => { scroller.current?.scrollTo({ top: 0 }); }, [view, opened]);
 
   return (
     <div className="app">
+      <Toaster />
       <aside className="rail">
         <div className="rail-brand">
           <Brand hint={text.product} />
@@ -1093,6 +1647,7 @@ const Shell = ({ user, setUser, onLogout, lang, setLang, review, setReview }) =>
           </button>
           <button type="button" className={view === "projects" ? "active" : ""} onClick={() => open("projects")}>
             <FolderKanban size={16} /> {text.nav.projects}
+            {(review.projects || []).filter((item) => !item.decision).length ? <em className="nav-count">{(review.projects || []).filter((item) => !item.decision).length}</em> : null}
           </button>
           {opened ? (
             <div className="file-context">
@@ -1110,6 +1665,9 @@ const Shell = ({ user, setUser, onLogout, lang, setLang, review, setReview }) =>
           ) : null}
           <button type="button" className={view === "database" ? "active" : ""} onClick={() => open("database")}>
             <Database size={16} /> {text.nav.database}
+          </button>
+          <button type="button" className={view === "guide" ? "active" : ""} onClick={() => open("guide")}>
+            <BookOpen size={16} /> {text.nav.guide}
           </button>
           <button type="button" className={view === "settings" ? "active" : ""} onClick={() => open("settings")}>
             <Settings size={16} /> {text.nav.settings}
@@ -1139,15 +1697,18 @@ const Shell = ({ user, setUser, onLogout, lang, setLang, review, setReview }) =>
             {opened ? <button type="button" className={view === "review" ? "active" : ""} onClick={() => openFile(opened, "review")}>{text.nav.review}</button> : null}
             {opened ? <button type="button" className={view === "compare" ? "active" : ""} onClick={() => openFile(opened, "compare")}>{text.nav.compare}</button> : null}
             <button type="button" className={view === "database" ? "active" : ""} onClick={() => open("database")}>{text.nav.database}</button>
+            <button type="button" className={view === "guide" ? "active" : ""} onClick={() => open("guide")}>{text.nav.guide}</button>
             <button type="button" className={view === "settings" ? "active" : ""} onClick={() => open("settings")}>{text.nav.settings}</button>
           </nav>
+          <button type="button" className="help-btn" onClick={() => open("guide")}><CircleHelp size={16} /> {text.help}</button>
         </header>
-        <div className="page-scroll">
+        <div className="page-scroll" ref={scroller}>
           {view === "dashboard" ? (
             <Desk
               lang={lang}
               review={review}
               onOpen={(projectId) => openFile(projectId, "review")}
+              onGo={open}
             />
           ) : null}
           {view === "projects" ? (
@@ -1157,25 +1718,33 @@ const Shell = ({ user, setUser, onLogout, lang, setLang, review, setReview }) =>
               review={review}
               onOpen={(projectId, next) => openFile(projectId, next)}
               onUpload={async (body) => {
-                const data = await uploadProject(body);
+                const calm = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+                const [data] = await Promise.all([
+                  uploadProject(body),
+                  new Promise((resolve) => { window.setTimeout(resolve, calm ? 0 : 1600); }),
+                ]);
                 setReview(data);
                 setOpened(data.id);
                 setView("review");
+                toast(text.toastUploaded);
               }}
               onRemove={(projectId) => {
                 const data = removeProject(projectId);
                 setReview(data);
+                toast(text.toastRemoved);
                 if (projectId === opened) closeFile();
               }}
               onClear={() => {
                 setReview(clearUploads());
+                toast(text.toastCleared);
                 if (opened && opened !== "sample" && opened !== "bench") closeFile();
               }}
             />
           ) : null}
           {opened && review.id === opened && view === "review" ? <Review key={review.id} lang={lang} review={review} setReview={setReview} /> : null}
           {opened && review.id === opened && view === "compare" ? <ComparePage key={review.id} lang={lang} review={review} /> : null}
-          {view === "database" ? <DatabasePage key={`db-${readPrefs().index}`} lang={lang} /> : null}
+          {view === "database" ? <DatabasePage key={`db-${readPrefs().index}-${readPrefs().workType}-${bookVersion}`} lang={lang} onChange={() => { setBookVersion((v) => v + 1); setReview(snapshot()); }} /> : null}
+          {view === "guide" ? <GuidePage lang={lang} onGo={open} /> : null}
           {view === "settings" ? <SettingsPage key="settings" lang={lang} setLang={setLang} user={user} setUser={setUser} setReview={setReview} onLogout={onLogout} /> : null}
         </div>
       </div>
@@ -1189,6 +1758,12 @@ const App = () => {
   const [lang, setLang] = useState(readLang);
   const [review, setReview] = useState(null);
   const [booting, setBooting] = useState(() => Boolean(currentUser()));
+  const [curtain, setCurtain] = useState(false);
+  const [animDone, setAnimDone] = useState(false);
+
+  useEffect(() => {
+    if (curtain && animDone && !booting && review) setCurtain(false);
+  }, [curtain, animDone, booting, review]);
 
   useEffect(() => {
     localStorage.setItem(LANG_KEY, lang);
@@ -1205,7 +1780,7 @@ const App = () => {
     setBooting(true);
     const loadDesk = async () => {
       dedupeProjects();
-      const samplesReady = localStorage.getItem("smeta.files.v7") === "1";
+      const samplesReady = localStorage.getItem("smeta.files.v8") === "1";
       if (!samplesReady) {
         SAMPLES.forEach((sample) => {
           const hit = (snapshot().projects || []).find((item) => item.title_en === sample.filename);
@@ -1222,7 +1797,7 @@ const App = () => {
         await uploadProject({ filename: sample.filename, bytes });
       }
       if (SAMPLES.every((sample) => hasFile(sample.filename))) {
-        localStorage.setItem("smeta.files.v7", "1");
+        localStorage.setItem("smeta.files.v8", "1");
       }
       return snapshot();
     };
@@ -1245,10 +1820,12 @@ const App = () => {
     setMode("login");
     setReview(null);
     setBooting(false);
+    setCurtain(false);
+    setAnimDone(false);
     setUser(null);
   };
 
-  if (!user) {
+  if (!user || curtain) {
     return (
       <Auth
         mode={mode}
@@ -1256,8 +1833,12 @@ const App = () => {
         onMode={setMode}
         onEnter={(session) => {
           setReview(null);
+          setAnimDone(false);
+          setCurtain(true);
+          setBooting(true);
           setUser(session);
         }}
+        onDone={() => setAnimDone(true)}
       />
     );
   }

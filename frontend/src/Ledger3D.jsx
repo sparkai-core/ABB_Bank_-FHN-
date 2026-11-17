@@ -1,4 +1,18 @@
 ﻿import { useEffect, useState } from "react";
+import { Check } from "lucide-react";
+
+/*
+ * Three estimate sheets (Excel, PDF, CSV) fan out, a scan line reads each one,
+ * and every row receives a mark: within band, check, or act.
+ * pose "idle"  : slow loop for the sign in screen
+ * pose "read"  : faster loop while a file is being read
+ * pose "open"  : one pass that folds the sheets into a finished report
+ */
+const SHEETS = [
+  { kind: "xlsx", label: "XLSX", rows: ["ok", "ok", "bad", "ok", "warn"] },
+  { kind: "pdf", label: "PDF", rows: ["ok", "warn", "ok", "ok", "ok"] },
+  { kind: "csv", label: "CSV", rows: ["ok", "ok", "ok", "bad", "ok"] },
+];
 
 const Ledger3D = ({ captions = [], pose = "idle", success = "" }) => {
   const [step, setStep] = useState(0);
@@ -13,16 +27,16 @@ const Ledger3D = ({ captions = [], pose = "idle", success = "" }) => {
     }
 
     if (pose === "open") {
-      const a = window.setTimeout(() => setStep(1), 450);
-      const b = window.setTimeout(() => setStep(2), 1300);
+      const a = window.setTimeout(() => setStep(1), 500);
+      const b = window.setTimeout(() => setStep(2), 1400);
       return () => {
         window.clearTimeout(a);
         window.clearTimeout(b);
       };
     }
 
-    const marks = pose === "read" ? [0, 900, 1800] : [0, 1400, 3200];
-    const cycle = pose === "read" ? 2800 : 5200;
+    const marks = pose === "read" ? [0, 1000, 2000] : [0, 1600, 3600];
+    const cycle = pose === "read" ? 3000 : 6000;
     let timers = [];
     const arm = () => {
       timers.forEach((id) => window.clearTimeout(id));
@@ -42,19 +56,31 @@ const Ledger3D = ({ captions = [], pose = "idle", success = "" }) => {
 
   return (
     <div className={`folio pose-${pose}${reduced ? " is-reduced" : ""}`} data-step={step}>
-      <div className="folio-stage" aria-hidden="true">
-        <div className="folio-glow" />
-        <div className="folio-shadow" />
-        <div className="folio-book">
-          <div className="folio-back">
-            <span className="folio-tab" />
+      <div className="stack-stage" aria-hidden="true">
+        <div className="stack-glow" />
+        <div className="stack-floor" />
+        {SHEETS.map((sheet, index) => (
+          <div className={`sheet sheet-${index}`} key={sheet.kind} style={{ "--i": index }}>
+            <div className="sheet-head">
+              <span className={`sheet-kind k-${sheet.kind}`}>{sheet.label}</span>
+              <i />
+            </div>
+            <div className="sheet-rows">
+              {sheet.rows.map((tone, row) => (
+                <div className="sheet-row" key={row} style={{ "--d": row }}>
+                  <i />
+                  <b className={`mark ${tone}`} />
+                </div>
+              ))}
+            </div>
+            <span className="sheet-beam" />
           </div>
-          <div className="folio-page page-1"><i /><i /><i /></div>
-          <div className="folio-page page-2"><i /><i /><i /></div>
-          <div className="folio-page page-3"><i /><i /><i /></div>
-          <div className="folio-cover">
-            <span className="folio-mark" />
-          </div>
+        ))}
+        <div className="stack-report">
+          <div className="report-lamp"><i /><i /><i /></div>
+          <span className="report-tick"><Check size={18} strokeWidth={3} /></span>
+          <i className="report-line" />
+          <i className="report-line short" />
         </div>
       </div>
       <p className="folio-caption" aria-live="polite">{label}</p>

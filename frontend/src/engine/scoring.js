@@ -20,7 +20,7 @@ const sentence = (lines, lang) => {
   });
   const under = [...sections.values()]
     .map((section) => ({ ...section, deviation: ((section.contractor - section.reference) / section.reference) * 100 }))
-    .filter((section) => section.deviation < 0)
+    .filter((section) => section.deviation <= -5)
     .sort((a, b) => a.deviation - b.deviation);
   const parts = [];
   if (under.length) {
@@ -30,6 +30,18 @@ const sentence = (lines, lang) => {
     parts.push(lang === "az"
       ? `${name} istinad qiymətindən ${shown}% aşağıdır.`
       : `${name} is ${shown}% under the reference price.`);
+  }
+  const over = [...sections.values()]
+    .map((section) => ({ ...section, deviation: ((section.contractor - section.reference) / section.reference) * 100 }))
+    .filter((section) => section.deviation > 0)
+    .sort((a, b) => b.deviation - a.deviation);
+  if (!under.length && over.length && over[0].deviation >= 5) {
+    const worst = over[0];
+    const name = lang === "az" ? worst.name_az : worst.name_en;
+    const shown = formatPct(percent(worst.deviation));
+    parts.push(lang === "az"
+      ? `${name} istinad qiymətindən ${shown}% yuxarıdır.`
+      : `${name} is ${shown}% over the reference price.`);
   }
   const gaps = lines.filter((line) => line.flag === "gap").length;
   const arithmetic = lines.filter((line) => line.flag === "arithmetic").length;
@@ -51,6 +63,18 @@ export const scoreLines = (lines, prefs = { under: -15, over: 15 }) => {
   const under = Number(prefs.under);
   const over = Number(prefs.over);
   const included = lines.filter((line) => line.included);
+  if (!included.length) {
+    return {
+      light: "amber",
+      contractor_total: "0.00",
+      reference_total: "0.00",
+      deviation_pct: null,
+      sentence_az: "Hələ təsdiqlənmiş sətir yoxdur. Uyğunluqları təsdiq edin.",
+      sentence_en: "No confirmed lines yet. Confirm the matches to get a score.",
+      parts: { wage: 0, machine: 0, material: 0, overhead: 0, profit: 0 },
+      empty: true,
+    };
+  }
   const sum = (pick) => money(included.reduce((total, line) => total + Number(pick(line) || 0), 0));
   const contractor = sum((line) => line.contractor_amount);
   const reference = sum((line) => line.reference_amount);

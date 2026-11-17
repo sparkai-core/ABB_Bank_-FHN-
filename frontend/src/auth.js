@@ -1,3 +1,5 @@
+// Accounts live only in this browser. This keeps the pilot offline and private;
+// production sign in should move to the client's own identity provider.
 const USERS = "smeta.users";
 const SESSION = "smeta.session";
 
@@ -15,12 +17,19 @@ const readUsers = () => {
   }
 };
 
-const ensureDemo = () => {
-  const list = readUsers().filter((user) => user.email !== DEMO.email);
-  localStorage.setItem(USERS, JSON.stringify([...list, { ...DEMO }]));
+const digest = async (text) => {
+  const bytes = new TextEncoder().encode(`smeta:${text}`);
+  const hash = await crypto.subtle.digest("SHA-256", bytes);
+  return [...new Uint8Array(hash)].map((byte) => byte.toString(16).padStart(2, "0")).join("");
 };
 
-ensureDemo();
+const ensureDemo = async () => {
+  const list = readUsers().filter((user) => user.email !== DEMO.email);
+  const hash = await digest(DEMO.password);
+  localStorage.setItem(USERS, JSON.stringify([...list, { name: DEMO.name, email: DEMO.email, hash }]));
+};
+
+const ready = ensureDemo();
 
 export const currentUser = () => {
   try {
@@ -30,31 +39,27 @@ export const currentUser = () => {
   }
 };
 
-export const signup = ({ name, email, password }) => {
+export const signup = async ({ name, email, password }) => {
+  await ready;
   const cleanEmail = email.trim().toLowerCase();
   const list = readUsers();
-  if (list.some((user) => user.email === cleanEmail)) {
-    throw new Error("exists");
-  }
-  const user = { name: name.trim(), email: cleanEmail, password };
+  if (list.some((user) => user.email === cleanEmail)) throw new Error("exists");
+  const user = { name: name.trim(), email: cleanEmail, hash: await digest(password) };
   localStorage.setItem(USERS, JSON.stringify([...list, user]));
   const session = { name: user.name, email: user.email };
   sessionStorage.setItem(SESSION, JSON.stringify(session));
   return session;
 };
 
-const nameFromEmail = (email) => email
-  .split("@")[0]
-  .split(/[._-]+/)
-  .filter(Boolean)
-  .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-  .join(" ");
-
-export const login = ({ email }) => {
+export const login = async ({ email, password }) => {
+  await ready;
   const cleanEmail = String(email || "").trim().toLowerCase();
-  if (!cleanEmail) throw new Error("mismatch");
   const known = readUsers().find((item) => item.email === cleanEmail);
-  const session = { name: known?.name || nameFromEmail(cleanEmail) || cleanEmail, email: cleanEmail };
+  if (!known) throw new Error("mismatch");
+  const hash = await digest(String(password || ""));
+  const legacy = known.password != null && known.password === password;
+  if (known.hash !== hash && !legacy) throw new Error("mismatch");
+  const session = { name: known.name || cleanEmail, email: cleanEmail };
   sessionStorage.setItem(SESSION, JSON.stringify(session));
   return session;
 };
