@@ -165,10 +165,16 @@ h2 { font-size: 16px; letter-spacing: -0.02em; font-weight: 600; }
   text-align: center;
   justify-content: center;
   min-height: 100%;
-  gap: 12px;
+  gap: 0;
+  padding-bottom: 6vh;
 }
-.login-art.is-open .brand { align-self: center; }
-.login-art.is-open .folio { width: min(640px, 88vw); margin-top: 0; }
+.login-art.is-open .brand {
+  align-self: center;
+  position: relative;
+  z-index: 2;
+  margin-bottom: 152px;
+}
+.login-art.is-open .folio { width: min(560px, 78vw); margin-top: 0; }
 .login-art.is-open .folio-caption {
   justify-content: center;
   font-size: 18px;
@@ -194,7 +200,7 @@ h2 { font-size: 16px; letter-spacing: -0.02em; font-weight: 600; }
   place-items: center;
 }
 .login-art .folio-stage { height: 360px; }
-.login-art.is-open .folio-stage { height: min(460px, 52vh); }
+.login-art.is-open .folio-stage { height: min(380px, 44vh); }
 .read-stage .folio-stage { height: min(420px, 48vh); }
 .folio-glow {
   position: absolute;
@@ -534,7 +540,7 @@ h2 { font-size: 16px; letter-spacing: -0.02em; font-weight: 600; }
 .loader-stage p { font-size: var(--t-sm); color: rgba(255, 255, 255, 0.78); }
 
 .app { height: 100%; display: grid; grid-template-columns: 252px 1fr; animation: settle 480ms cubic-bezier(0.16, 1, 0.3, 1) both; }
-.login-art.is-open .folio { width: min(640px, 88vw); }
+.login-art.is-open .folio { width: min(560px, 78vw); }
 .read-stage {
   position: fixed;
   inset: 0;
@@ -543,8 +549,8 @@ h2 { font-size: 16px; letter-spacing: -0.02em; font-weight: 600; }
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 32px;
+  gap: 148px;
+  padding: 32px 32px 8vh;
   color: white;
   background:
     radial-gradient(420px 220px at 50% 18%, rgba(255, 255, 255, 0.16), transparent 70%),
